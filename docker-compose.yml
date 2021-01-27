@@ -1,0 +1,9 @@
+version: "3.7"
+
+services:
+  tlstools:
+    image: jsandas/tlstools
+    build:
+      context: .
+    ports:
+      - "8080:8080" 
