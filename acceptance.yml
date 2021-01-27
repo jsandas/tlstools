@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+  tlstools:
+    image: jsandas/tlstools
+    build:
+      context: .
+    ports:
+      - "8080:8080" 
+      
+  nginx_vuln:
+    build:
+      context: test_setup/conf/nginx
+    image: jsandas/nginx_vuln
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - $PWD/test_setup/conf/nginx/nginx.conf:/usr/local/nginx/conf/nginx.conf
+
+  postfix_vuln:
+    build:
+      context: test_setup/conf/postfix
+    image: jsandas/postfix_vuln
+    ports:
+      - "25:25"
+      - "587:587"
+    environment:
+      - maildomain=mail.example.com
+      - smtp_user=user:pwd
+
