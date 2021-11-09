@@ -28,7 +28,7 @@ ca_gen_crl () {
 }
 ca_sign () {
     CERT=$1
-    openssl ca -batch -config $CONF_DIR/openssl.conf -in $CERT.csr -days 7
+    openssl ca -batch -config $CONF_DIR/openssl.conf -in $CERT.csr -days 7 -extfile <(printf "subjectAltName=DNS:$CERT.tlstest.com")
     rm $CERT.csr
 }
 

@@ -29,14 +29,14 @@ func TestMakeClientHello(t *testing.T) {
 
 // This check will break if the admin of
 // mlreport.infraware.co.kr disables sslv2 support
-func TestSSLv2Check(t *testing.T) {
-	var host string = "mlreport.infraware.co.kr"
-	var port string = "443"
-	r := sslv2Check(host, port)
-	if _, ok := r["SSLv2"]; !ok {
-		t.Errorf("sslv2 check failed, host: %s:%s", host, port)
-	}
-}
+// func TestSSLv2Check(t *testing.T) {
+// 	var host string = "mlreport.infraware.co.kr"
+// 	var port string = "443"
+// 	r := sslv2Check(host, port)
+// 	if _, ok := r["SSLv2"]; !ok {
+// 		t.Errorf("sslv2 check failed, host: %s:%s", host, port)
+// 	}
+// }
 
 // server does not support sslv2
 func TestCheckNoSSLv2(t *testing.T) {
