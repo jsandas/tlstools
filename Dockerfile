@@ -22,7 +22,7 @@ RUN make
 RUN make -i install
 
 # build go binary
-FROM golang:1.13 as build
+FROM golang:1.17 as build
 
 COPY . /src/tlstools
 
