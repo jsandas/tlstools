@@ -37,16 +37,18 @@ func TestBleedNotEnabled(t *testing.T) {
 	}
 }
 
-func TestBleedSafe(t *testing.T) {
-	status := Heartbleed("seal.digicert.com", "443", 771)
+// disabled check because I cannot find a server with the heartbeat
+// extension enabled
+// func TestBleedSafe(t *testing.T) {
+// 	status := Heartbleed("seal.digicert.com", "443", 771)
 
-	if status != "no" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "no")
-	}
-}
+// 	if status != "no" {
+// 		t.Errorf("Wrong return, got: %s, want: %s.", status, "no")
+// 	}
+// }
 
 func TestBleedTimeout(t *testing.T) {
-	status := Heartbleed("localhost", "4242", 771)
+	status := Heartbleed("127.0.0.1", "4242", 771)
 
 	if status != "error" {
 		t.Errorf("Wrong return, got: %s, want: %s.", status, "error")
