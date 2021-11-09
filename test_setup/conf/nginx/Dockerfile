@@ -1,7 +1,8 @@
 # Build image running nginx with heartbleed, sslv2 (breach), sslv3 (poodle)
 FROM ubuntu:12.04
 
-RUN apt-get update \
+RUN sed -i 's/archive/old-releases/g' /etc/apt/sources.list \
+    && apt-get update \
     && apt-get install -y wget gcc make openssl perl-modules zlib1g-dev
 
 WORKDIR /code
