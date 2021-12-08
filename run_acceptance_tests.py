@@ -182,7 +182,7 @@ def test_csr():
 
 def main():
     # setup for acceptance tests
-    subprocess.call(["docker-compose", "-f", "acceptance.yml", "pull"], stdout=open(os.devnull, 'wb'))
+    subprocess.call(["docker-compose", "-f", "acceptance.yml", "build"], stdout=open(os.devnull, 'wb'))
     subprocess.call(["docker-compose", "-f", "acceptance.yml", "up", "-d"])
 
     # sleep for containers to come up
