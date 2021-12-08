@@ -26,7 +26,7 @@ func TestConnect(t *testing.T) {
 	port := s[1]
 
 	// SSLv3/TLS_RSA_WITH_AES_128_CBC_SHA no go
-	b1 := connect(host, port, tls.VersionSSL30, 25)
+	b1 := connect(host, port, VersionSSL30, 25)
 	if b1 {
 		t.Errorf("should not have connected, got: %v, want: %v.", b1, false)
 	}
