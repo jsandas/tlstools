@@ -58,19 +58,6 @@ var cipherSuitesMap = map[int]cipherInfo{
 	// TLS_FALLBACK_SCSV:                       "FALLBACK_SCSV",
 }
 
-type protocolInfo struct {
-	name        string
-	opensslname string
-}
-
-var protocolVersionMap = map[int]protocolInfo{
-	VersionTLS13: {"TLSv1.3", "-tls1_3"},
-	VersionTLS12: {"TLSv1.2", "-tls1_2"},
-	VersionTLS11: {"TLSv1.1", "-tls1_1"},
-	VersionTLS10: {"TLSv1.0", "-tls1"},
-	VersionSSL30: {"SSLv3", "-ssl3"},
-}
-
 func cipherStrList(uList []uint16) []string {
 	var cList []string
 	for i := range uList {
