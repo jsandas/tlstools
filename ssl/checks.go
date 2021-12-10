@@ -1,9 +1,6 @@
 package ssl
 
 import (
-	"crypto/tls"
-	"sort"
-	"strings"
 	"sync"
 
 	"github.com/jsandas/tlstools/logger"
@@ -48,10 +45,10 @@ func Check(host string, port string, keyType string) map[string][]string {
 	return supportedConfig
 }
 
-func connect(host string, port string, p int, c int) bool {
-	var cipher uint16 = cipherSuitesMap[c].cipher
+func connect(host string, port string, p int, c uint16) bool {
+	var cipher uint16 = c
 
-	if p == 768 || useOpenSSL(c) {
+	if p < VersionTLS13 {
 		return opensslDial(host, port, p, []uint16{cipher})
 	}
 
@@ -64,7 +61,7 @@ func getProtocols(host string, port string) []int {
 
 	for p := range protocolVersionMap {
 		var supported bool
-		if p == 768 {
+		if p < VersionTLS13 {
 			supported = opensslDial(host, port, p, nil)
 		} else {
 			supported = serverDial(host, port, p, nil)
@@ -82,17 +79,18 @@ func getProtocols(host string, port string) []int {
 // getCiphers returns list of support TLS ciphers
 func getCiphers(host string, port string, protocol int, keyType string) []string {
 	var cipherList []string
-	var tmpCipherList []int
+	// var tmpCipherList []uint16
 	var cWG sync.WaitGroup
 	var cmtex = &sync.Mutex{}
 
-	cipherChan := make(chan int)
-	for i := range cipherSuitesMap {
+	cipherChan := make(chan string)
+	for i, c := range cipherSuites {
 		cWG.Add(1)
-		go func(i int) {
+		logger.Debugf("testing cipher: %s | protocol: %d", c.name, protocol)
+		go func(c cipherSuite) {
 			var supported bool
 
-			if !proceed(i, protocol, keyType) {
+			if !proceed(c, protocol, keyType) {
 				cWG.Done()
 				return
 			}
@@ -100,64 +98,50 @@ func getCiphers(host string, port string, protocol int, keyType string) []string
 			supported = connect(host, port, protocol, i)
 
 			if supported {
-				cipherChan <- i
+				cipherChan <- c.name
 			}
 			cWG.Done()
-		}(i)
+		}(c)
 
 		go func() {
-			for i := range cipherChan {
+			for s := range cipherChan {
 				cmtex.Lock()
-				tmpCipherList = append(tmpCipherList, i)
+				cipherList = append(cipherList, s)
 				cmtex.Unlock()
 			}
 		}()
 		cWG.Wait()
 	}
 
-	sort.Ints(tmpCipherList)
-	for i := range tmpCipherList {
-		cInt := tmpCipherList[i]
-		cipherList = append(cipherList, cipherSuitesMap[cInt].name)
-	}
+	// sort.Ints(tmpCipherList)
+	// for i := range tmpCipherList {
+	// 	cInt := tmpCipherList[i]
+	// 	cipherList = append(cipherList, cipherSuitesMap[cInt].name)
+	// }
 	logger.Debugf("supported ciphers %s: %v", protocolVersionMap[protocol].name, cipherList)
 
 	return cipherList
 }
 
 // proceed determines if check should proceed
-func proceed(c int, p int, k string) bool {
-	var b bool
-
+func proceed(c cipherSuite, p int, k string) bool {
 	// Only test ciphers matching keyType (RSA vs ECC)
-	if !strings.Contains(cipherSuitesMap[c].name, k) && !(strings.HasPrefix(cipherSuitesMap[c].name, "TLS_AES") || strings.HasPrefix(cipherSuitesMap[c].name, "TLS_CHACHA20")) {
-		return b
+	if (c.authentication != k) && (c.authentication != "None") {
+		// logger.Debugf("skip cipher %s | %d reason: wrong_keytype", c.name, p)
+		return false
 	}
-	// Only test GCM ciphers with TLS1.2/1.3
-	if p < tls.VersionTLS12 && (strings.Contains(cipherSuitesMap[c].name, "GCM") || strings.Contains(cipherSuitesMap[c].name, "CHACHA")) {
-		return b
+
+	// skip cipher if protocol too low
+	if p < c.MinProtoVersion {
+		// logger.Debugf("skip cipher %s | %d reason: under_min_version", c.name, p)
+		return false
 	}
-	// Don't try tls1.3 ciphers when protocol is < tls1.3
-	if p < tls.VersionTLS13 && (strings.HasPrefix(cipherSuitesMap[c].name, "TLS_AES") || strings.HasPrefix(cipherSuitesMap[c].name, "TLS_CHACHA20")) {
-		return b
-	}
-	// Only test tls1.3 ciphers with tls1.3
-	if p == tls.VersionTLS13 && !(strings.HasPrefix(cipherSuitesMap[c].name, "TLS_AES") || strings.HasPrefix(cipherSuitesMap[c].name, "TLS_CHACHA20")) {
-		return b
+
+	// skip cipher if cipher is not for tlsv1.3
+	if (p == VersionTLS13) && (c.MinProtoVersion != p) {
+		// logger.Debugf("skip cipher %s | %d reason: not_tls13_cipher", c.name, p)
+		return false
 	}
 
 	return true
-}
-
-func useOpenSSL(c int) bool {
-	var b bool
-	var strList = []string{"MD5", "TLS_DHE", "CAMELLIA256", "EXPORT"}
-	var cs = cipherSuitesMap[c].name
-	for _, s := range strList {
-		if strings.Contains(cs, s) {
-			return true
-		}
-	}
-
-	return b
 }
