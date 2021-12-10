@@ -195,7 +195,7 @@ const (
 type cipherSuite struct {
 	name            string
 	opensslname     string
-	MinProtoVersion uint16
+	MinProtoVersion int
 	keyExhange      string
 	authentication  string
 	encryption      string

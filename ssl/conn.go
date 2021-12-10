@@ -12,57 +12,11 @@ import (
 	"github.com/jsandas/tlstools/utils"
 )
 
-type cipherInfo struct {
-	cipher      uint16
-	name        string
-	opensslname string
-}
-
-// using a map with an int as the key because the uint
-// values of the ciphers is not in order
-var cipherSuitesMap = map[int]cipherInfo{
-	0:  {TLS_AES_256_GCM_SHA384, "TLS_AES_256_GCM_SHA384", "TLS_AES_256_GCM_SHA384"},
-	1:  {TLS_CHACHA20_POLY1305_SHA256, "TLS_CHACHA20_POLY1305_SHA256", "TLS_CHACHA20_POLY1305_SHA256"},
-	2:  {TLS_AES_128_GCM_SHA256, "TLS_AES_128_GCM_SHA256", "TLS_AES_128_GCM_SHA256"},
-	3:  {TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384", "ECDHE-ECDSA-AES256-GCM-SHA384"},
-	4:  {TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "ECDHE-RSA-AES256-GCM-SHA384"},
-	5:  {TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 ", "DHE-RSA-AES256-GCM-SHA384"},
-	6:  {TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305", "ECDHE-ECDSA-CHACHA20-POLY1305"},
-	7:  {TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305", "ECDHE-RSA-CHACHA20-POLY1305"},
-	8:  {TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256", "ECDHE-ECDSA-AES128-GCM-SHA256"},
-	9:  {TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "ECDHE-RSA-AES128-GCM-SHA256"},
-	10: {TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "ECDHE-ECDSA-AES128-SHA256"},
-	11: {TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "ECDHE-RSA-AES128-SHA256"},
-	12: {TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "ECDHE-RSA-AES256-SHA"},
-	13: {TLS_DHE_RSA_WITH_AES_256_CBC_SHA, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "DHE-RSA-AES256-SHA"},
-	14: {TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA", "ECDHE-ECDSA-AES256-SHA"},
-	15: {TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA", "ECDHE-ECDSA-AES128-SHA"},
-	16: {TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "ECDHE-RSA-AES128-SHA"},
-	17: {TLS_DHE_RSA_WITH_AES_128_CBC_SHA, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "DHE-RSA-AES128-SHA"},
-	18: {TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA, "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", "ECDHE-RSA-DES-CBC3-SHA"},
-	19: {TLS_ECDHE_ECDSA_WITH_RC4_128_SHA, "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA", "ECDHE-ECDSA-RC4-SHA"},
-	20: {TLS_ECDHE_RSA_WITH_RC4_128_SHA, "TLS_ECDHE_RSA_WITH_RC4_128_SHA", "ECDHE-RSA-RC4-SHA"},
-	21: {TLS_RSA_WITH_AES_256_GCM_SHA384, "TLS_RSA_WITH_AES_256_GCM_SHA384", "AES256-GCM-SHA384"},
-	22: {TLS_RSA_WITH_AES_128_GCM_SHA256, "TLS_RSA_WITH_AES_128_GCM_SHA256", "AES128-GCM-SHA256"},
-	23: {TLS_RSA_WITH_AES_128_CBC_SHA256, "TLS_RSA_WITH_AES_128_CBC_SHA256", "AES128-SHA256"},
-	24: {TLS_RSA_WITH_AES_256_CBC_SHA, "TLS_RSA_WITH_AES_256_CBC_SHA", "AES256-SHA"},
-	25: {TLS_RSA_WITH_AES_128_CBC_SHA, "TLS_RSA_WITH_AES_128_CBC_SHA", "AES128-SHA"},
-	26: {TLS_RSA_WITH_3DES_EDE_CBC_SHA, "TLS_RSA_WITH_3DES_EDE_CBC_SHA", "DES-CBC3-SHA"},
-	27: {TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA", "DHE-RSA-CAMELLIA256-SHA"},
-	28: {TLS_RSA_WITH_CAMELLIA_256_CBC_SHA, "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA", "CAMELLIA256-SHA"},
-	29: {TLS_RSA_WITH_RC4_128_SHA, "TLS_RSA_WITH_RC4_128_SHA", "RC4-SHA"},
-	30: {TLS_RSA_WITH_RC4_128_MD5, "TLS_RSA_WITH_RC4_128_MD5", "RC4-MD5"},
-	31: {TLS_RSA_EXPORT_WITH_RC4_40_MD5, "TLS_RSA_EXPORT_WITH_RC4_40_MD5", "EXP-RC4-MD5"},
-	// TLS_FALLBACK_SCSV isn't a standard cipher suite but an indicator
-	// that the client is doing version fallback. See RFC 7507.
-	// TLS_FALLBACK_SCSV:                       "FALLBACK_SCSV",
-}
-
 func cipherStrList(uList []uint16) []string {
 	var cList []string
-	for i := range uList {
-		for _, v := range cipherSuitesMap {
-			if uList[i] == v.cipher {
+	for _, i := range uList {
+		for k, v := range cipherSuites {
+			if k == i {
 				cList = append(cList, v.name)
 			}
 		}
@@ -146,9 +100,9 @@ func serverDial(host string, port string, proto int, ciphers []uint16) (connecte
 
 func opensslCString(uList []uint16) string {
 	var cList []string
-	for i := range uList {
-		for _, v := range cipherSuitesMap {
-			if uList[i] == v.cipher {
+	for _, i := range uList {
+		for k, v := range cipherSuites {
+			if k == i {
 				cList = append(cList, v.opensslname)
 			}
 		}
@@ -200,9 +154,10 @@ func opensslDial(host string, port string, proto int, ciphers []uint16) bool {
 	cmd.Stdin = strings.NewReader("Q")
 	var out bytes.Buffer
 	cmd.Stdout = &out
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
+
+	// logger.Debugf("event_id=tls_dial proto=%s cipher=%v", protocolVersionMap[proto].name, c)
 	err = cmd.Run()
+	// fmt.Println(cmd.Stdout)
 	if err != nil {
 		cList := cipherStrList(ciphers)
 		logger.Debugf("event_id=tls_dial_failed proto=%s cipher=%v msg\"%v\"", protocolVersionMap[proto].name, cList, err)
