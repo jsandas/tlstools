@@ -86,7 +86,6 @@ func getCiphers(host string, port string, protocol int, keyType string) []string
 	cipherChan := make(chan string)
 	for i, c := range cipherSuites {
 		cWG.Add(1)
-		logger.Debugf("testing cipher: %s | protocol: %d", c.name, protocol)
 		go func(c cipherSuite) {
 			var supported bool
 
@@ -94,7 +93,7 @@ func getCiphers(host string, port string, protocol int, keyType string) []string
 				cWG.Done()
 				return
 			}
-
+			logger.Debugf("testing cipher: %s | protocol: %d", c.name, protocol)
 			supported = connect(host, port, protocol, i)
 
 			if supported {
@@ -126,7 +125,7 @@ func getCiphers(host string, port string, protocol int, keyType string) []string
 // proceed determines if check should proceed
 func proceed(c cipherSuite, p int, k string) bool {
 	// Only test ciphers matching keyType (RSA vs ECC)
-	if (c.authentication != k) && (c.authentication != "None") {
+	if (c.authentication != k) && (c.authentication != "None") && (c.authentication != "any") {
 		// logger.Debugf("skip cipher %s | %d reason: wrong_keytype", c.name, p)
 		return false
 	}
