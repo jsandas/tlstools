@@ -96,110 +96,49 @@ func TestIsTrusted(t *testing.T) {
 }
 
 func TestParseRSACert(t *testing.T) {
+	var c CertData
+
 	pemBlock, _ := pem.Decode([]byte(rsaCertPEM))
 	cert, err := x509.ParseCertificate(pemBlock.Bytes)
 	if err != nil {
 		t.Errorf("Error reading cert, got: %v", err)
 	}
 
-	parsedCert := ParseCert(cert)
+	c.Process(cert)
 
-	if parsedCert.Subject.CommonName != "valid.tlstest.com" {
-		t.Errorf("Certificate incorrect common name, got: %s, want: %s.", parsedCert.Subject.CommonName, "valid.tlstest.com")
+	if c.Subject.CommonName != "valid.tlstest.com" {
+		t.Errorf("Certificate incorrect common name, got: %s, want: %s.", c.Subject.CommonName, "valid.tlstest.com")
 	}
 
-	if parsedCert.KeyType != "RSA-2048" {
-		t.Errorf("Certificate incorrect key size, got: %s, want: %s.", parsedCert.KeyType, "RSA-2048")
+	if c.KeyType != "RSA-2048" {
+		t.Errorf("Certificate incorrect key size, got: %s, want: %s.", c.KeyType, "RSA-2048")
 	}
 
-	if parsedCert.SerialNumber != "01" {
-		t.Errorf("Certificate incorrect serial number, got: %s, want: %s.", parsedCert.SerialNumber, "01")
+	if c.SerialNumber != "01" {
+		t.Errorf("Certificate incorrect serial number, got: %s, want: %s.", c.SerialNumber, "01")
 	}
 }
 
 func TestParseECDSACert(t *testing.T) {
+	var c CertData
+
 	pemBlock, _ := pem.Decode([]byte(ecdsaCertPEM))
 	cert, err := x509.ParseCertificate(pemBlock.Bytes)
 	if err != nil {
 		t.Errorf("Error reading cert, got: %v", err)
 	}
 
-	parsedCert := ParseCert(cert)
+	c.Process(cert)
 
-	if parsedCert.Subject.CountryName != "AU" {
-		t.Errorf("Certificate incorrect common name, got: %s, want: %s.", parsedCert.Subject.CountryName, "AU")
+	if c.Subject.CountryName != "AU" {
+		t.Errorf("Certificate incorrect common name, got: %s, want: %s.", c.Subject.CountryName, "AU")
 	}
 
-	if parsedCert.KeyType != "ECDSA-521" {
-		t.Errorf("Certificate incorrect key size, got: %s, want: %s.", parsedCert.KeyType, "ECDSA-521")
+	if c.KeyType != "ECDSA-521" {
+		t.Errorf("Certificate incorrect key size, got: %s, want: %s.", c.KeyType, "ECDSA-521")
 	}
 
-	if parsedCert.SerialNumber != "EC71D531C35E9714" {
-		t.Errorf("Certificate incorrect serial number, got: %s, want: %s.", parsedCert.SerialNumber, "EC71D531C35E9714")
-	}
-}
-
-func TestParseRSACSR(t *testing.T) {
-	pemBlock, _ := pem.Decode([]byte(rsaCSRPEM))
-	csr, err := x509.ParseCertificateRequest(pemBlock.Bytes)
-	if err != nil {
-		t.Errorf("Error reading csr, got: %v", err)
-	}
-
-	parsedCSR := ParseCSR(*csr)
-
-	if parsedCSR.Subject.CountryName != "US" {
-		t.Errorf("Certificate incorrect common name, got: %s, want: %s.", parsedCSR.Subject.CountryName, "AU")
-	}
-
-	if parsedCSR.KeyType != "RSA-2048" {
-		t.Errorf("Certificate incorrect key size, got: %s, want: %s.", parsedCSR.KeyType, "ECDSA-521")
-	}
-
-	if parsedCSR.Version != 0 {
-		t.Errorf("Certificate incorrect serial number, got: %d, want: %d.", parsedCSR.Version, 0)
-	}
-}
-
-func TestParseECDSACSR(t *testing.T) {
-	pemBlock, _ := pem.Decode([]byte(ecdsaCSRPEM))
-	csr, err := x509.ParseCertificateRequest(pemBlock.Bytes)
-	if err != nil {
-		t.Errorf("Error reading csr, got: %v", err)
-	}
-
-	parsedCSR := ParseCSR(*csr)
-
-	if parsedCSR.Subject.CountryName != "US" {
-		t.Errorf("Certificate incorrect common name, got: %s, want: %s.", parsedCSR.Subject.CountryName, "AU")
-	}
-
-	if parsedCSR.KeyType != "ECDSA-253" {
-		t.Errorf("Certificate incorrect key size, got: %s, want: %s.", parsedCSR.KeyType, "RSA-2048")
-	}
-
-	if parsedCSR.Version != 0 {
-		t.Errorf("Certificate incorrect serial number, got: %d, want: %d.", parsedCSR.Version, 0)
-	}
-}
-
-func TestVerifyHostname(t *testing.T) {
-	var matches bool
-
-	pemBlock, _ := pem.Decode([]byte(rsaCertPEM))
-	cert, err := x509.ParseCertificate(pemBlock.Bytes)
-	if err != nil {
-		t.Errorf("Error reading cert, got: %v", err)
-	}
-
-	matches = VerifyHostname(cert, "valid.tlstest.com")
-
-	if !matches {
-		t.Errorf("Hostname didn't match, got: %v, want: %v.", matches, true)
-	}
-
-	matches = VerifyHostname(cert, "invalid.tlstest.com")
-	if matches {
-		t.Errorf("Hostname shouldn't match, got: %v, want: %v.", matches, false)
+	if c.SerialNumber != "EC71D531C35E9714" {
+		t.Errorf("Certificate incorrect serial number, got: %s, want: %s.", c.SerialNumber, "EC71D531C35E9714")
 	}
 }

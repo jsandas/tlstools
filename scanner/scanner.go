@@ -43,9 +43,10 @@ type Vulnerabilities struct {
 func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertData {
 	var certs []certutil.CertData
 	for i, cert := range cList {
-		certData := certutil.ParseCert(cert)
+		var c certutil.CertData
+		c.Process(cert)
 		// check CRLs
-		certData.Status.CRL = status.CRL(certData.SerialNumber, certData.Extensions.CRLDistributionPoints)
+		c.Status.CRL = status.CRL(c.SerialNumber, c.Extensions.CRLDistributionPoints)
 
 		// check ocsp
 		var ocspStatus string
@@ -57,10 +58,10 @@ func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertDa
 		if ocspStatus == "" {
 			ocspStatus = status.OCSP(nil, cert)
 		}
-		certData.Status.OCSP = ocspStatus
+		c.Status.OCSP = ocspStatus
 
-		certs = append(certs, certData)
-		logger.Debugf("event_id=parsed_certificate cn=%s", certData.Subject.CommonName)
+		certs = append(certs, c)
+		logger.Debugf("event_id=parsed_certificate cn=%s", c.Subject.CommonName)
 	}
 
 	return certs
