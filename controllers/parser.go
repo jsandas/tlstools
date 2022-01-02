@@ -45,7 +45,7 @@ func certHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c = certutil.ParseCert(cert)
+	c.Process(cert)
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, c)
@@ -77,7 +77,7 @@ func csrHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c = certutil.ParseCSR(*csr)
+	c.Process(*csr)
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, c)
