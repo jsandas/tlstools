@@ -48,7 +48,7 @@ func scanHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results = scanner.Scan(scanHost, scanPort)
+	results.Scan(scanHost, scanPort)
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, results)
