@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -106,12 +107,14 @@ func logIt(loglevel string, message string, args ...interface{}) {
 
 	_, file, line, _ := runtime.Caller(2)
 
+	shortFile := strings.Split(file, "tlstools/")[1]
+
 	if len(args) > 0 {
 		message = fmt.Sprintf(message, args...)
 	}
 
 	if LogLevelVal[loglevel] <= LogLevelVal[LogLevel] {
 		time := time.Now().Format(time.RFC3339)
-		fmt.Fprintf(Out.Out, "%s file=%s line=%d %s: %s\n", time, file, line, loglevel, message)
+		fmt.Fprintf(Out.Out, "%s file=%s:%d %s: %s\n", time, shortFile, line, loglevel, message)
 	}
 }
