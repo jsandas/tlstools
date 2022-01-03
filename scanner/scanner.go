@@ -43,9 +43,10 @@ type Vulnerabilities struct {
 func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertData {
 	var certs []certutil.CertData
 	for i, cert := range cList {
-		certData := certutil.ParseCert(cert)
+		var c certutil.CertData
+		c.Process(cert)
 		// check CRLs
-		certData.Status.CRL = status.CRL(certData.SerialNumber, certData.Extensions.CRLDistributionPoints)
+		c.Status.CRL = status.CRL(c.SerialNumber, c.Extensions.CRLDistributionPoints)
 
 		// check ocsp
 		var ocspStatus string
@@ -57,20 +58,17 @@ func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertDa
 		if ocspStatus == "" {
 			ocspStatus = status.OCSP(nil, cert)
 		}
-		certData.Status.OCSP = ocspStatus
+		c.Status.OCSP = ocspStatus
 
-		certs = append(certs, certData)
-		logger.Debugf("event_id=parsed_certificate cn=%s", certData.Subject.CommonName)
+		certs = append(certs, c)
+		logger.Debugf("event_id=parsed_certificate cn=%s", c.Subject.CommonName)
 	}
 
 	return certs
 }
 
 // Scan is performs tls certificate and conn checks
-func Scan(host string, port string) Results {
-	var results Results
-	var connData ConnectionData
-	var vulnData Vulnerabilities
+func (r *Results) Scan(host string, port string) {
 	var WG sync.WaitGroup
 	var mutex = &sync.Mutex{}
 	var service = utils.GetService(port)
@@ -80,48 +78,44 @@ func Scan(host string, port string) Results {
 
 	if len(certs) == 0 {
 		logger.Debugf("event_id=no_certs_found host=%s port=%s", host, port)
-		return results
+		return
 	}
 
 	ocspStapling := tlsConnState.OCSPResponse
 
-	results.Certificates = getCertData(certs, ocspStapling)
+	r.Certificates = getCertData(certs, ocspStapling)
 
 	// collect data about the connection in general
 	if service == "https" || strings.HasSuffix(service, "SSL") {
-		connData.ServerHeader = utils.GetHTTPHeader(host, port, "Server")
+		r.ConnectionInformation.ServerHeader = utils.GetHTTPHeader(host, port, "Server")
 	} else {
-		connData.ServerHeader = tcputils.GetTCPHeader(host, port)
+		r.ConnectionInformation.ServerHeader = tcputils.GetTCPHeader(host, port)
 	}
-	connData.HostNameMatches = certutil.VerifyHostname(certs[0], host)
-	connData.ChainTrusted = certutil.IsTrusted(certs, host)
-	connData.HostName = host
+	r.ConnectionInformation.HostNameMatches = certutil.VerifyHostname(certs[0], host)
+	r.ConnectionInformation.ChainTrusted = certutil.IsTrusted(certs, host)
+	r.ConnectionInformation.HostName = host
 	if ocspStapling != nil {
-		connData.OCSPStapling = true
+		r.ConnectionInformation.OCSPStapling = true
 	}
 
 	WG.Add(1)
 	go func() {
 		keyType := certs[0].PublicKeyAlgorithm.String()
 		mutex.Lock()
-		connData.SupportedConfig = ssl.Check(host, port, keyType)
+		r.ConnectionInformation.SupportedConfig = ssl.Check(host, port, keyType)
 		mutex.Unlock()
 		WG.Done()
 	}()
 
-	vulnData.Heartbleed = vuln.Heartbleed(host, port, tlsVers)
+	r.Vulnerabilities.Heartbleed = vuln.Heartbleed(host, port, tlsVers)
 
 	if certs[0].PublicKeyAlgorithm.String() == "RSA" {
 		pubKey := certs[0].PublicKey.(*rsa.PublicKey)
 		keySize := pubKey.Size() * 8
 		modulus := fmt.Sprintf("%x", pubKey.N)
-		vulnData.DebianWeakKey = vuln.DebianWeakKey(keySize, modulus)
+		r.Vulnerabilities.DebianWeakKey = vuln.DebianWeakKey(keySize, modulus)
 	}
 
 	WG.Wait()
 
-	results.ConnectionInformation = connData
-	results.Vulnerabilities = vulnData
-
-	return results
 }
