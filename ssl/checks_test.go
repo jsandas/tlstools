@@ -26,13 +26,13 @@ func TestConnect(t *testing.T) {
 	port := s[1]
 
 	// SSLv3/TLS_RSA_WITH_AES_128_CBC_SHA no go
-	b1 := connect(host, port, VersionSSL30, 25)
+	b1 := connect(host, port, VersionSSL30, TLS_RSA_WITH_AES_128_CBC_SHA)
 	if b1 {
 		t.Errorf("should not have connected, got: %v, want: %v.", b1, false)
 	}
 
 	// TLSv1.2/TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 go
-	b2 := connect(host, port, tls.VersionTLS12, 4)
+	b2 := connect(host, port, tls.VersionTLS12, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
 	if !b2 {
 		t.Errorf("should have connected, got: %v, want: %v.", b2, true)
 	}
