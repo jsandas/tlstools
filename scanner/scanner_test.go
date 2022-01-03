@@ -77,6 +77,7 @@ func TestGetCertDataWithOCSPStaple(t *testing.T) {
 }
 
 func TestScan(t *testing.T) {
+	var r Results
 	// Start a local HTTPS server
 	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
@@ -92,14 +93,14 @@ func TestScan(t *testing.T) {
 	s := strings.Replace(server.URL, "https://", "", -1)
 	host, port, _ := net.SplitHostPort(s)
 
-	res := Scan(host, port)
+	r.Scan(host, port)
 
-	if len(res.Certificates) == 0 {
+	if len(r.Certificates) == 0 {
 		t.Errorf("server should have tls")
 	}
 
-	san := res.Certificates[0].Extensions.SubjectAlternativeNames[0]
-	ktype := res.Certificates[0].KeyType
+	san := r.Certificates[0].Extensions.SubjectAlternativeNames[0]
+	ktype := r.Certificates[0].KeyType
 
 	if san != "example.com" {
 		t.Errorf("wrong SAN info, got: %s, want: %s.", san, "example.com")
@@ -111,6 +112,7 @@ func TestScan(t *testing.T) {
 }
 
 func TestScanNoTLS(t *testing.T) {
+	var r Results
 	// Start a local HTTPS server
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
@@ -126,9 +128,9 @@ func TestScanNoTLS(t *testing.T) {
 	s := strings.Replace(server.URL, "https://", "", -1)
 	host, port, _ := net.SplitHostPort(s)
 
-	res := Scan(host, port)
+	r.Scan(host, port)
 
-	if len(res.Certificates) != 0 {
+	if len(r.Certificates) != 0 {
 		t.Errorf("server should not have tls")
 	}
 }
