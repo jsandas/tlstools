@@ -120,10 +120,9 @@ func createOCSPReq(cert *x509.Certificate) ([]byte, error) {
 			return ocspReq, err
 		}
 	} else {
-		// Not all certificates have the AIA extension with the
-		// CAIssuers field
-		// Using golang certificate verify to return a trust chain
-		// if it can create one using the system roots
+		// Not all certificates have the AIA extension with the CAIssuers field
+		// Using golang certificate verification to attempt to create
+		// a trust chain using the system roots
 		opts := x509.VerifyOptions{}
 		chains, err := cert.Verify(opts)
 		if err != nil {
