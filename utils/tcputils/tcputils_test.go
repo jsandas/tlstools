@@ -2,6 +2,7 @@ package tcputils
 
 import (
 	"net"
+	"strings"
 	"testing"
 )
 
@@ -24,14 +25,12 @@ func TestReadWrite(t *testing.T) {
 	}
 }
 
-// stupid firewall blocks this on jenkins...
-// need to figure out another way to test this
-// func TestGetTCPHeader(t *testing.T) {
-// 	exp := "220 smtp.gmail.com ESMTP"
+func TestGetTCPHeader(t *testing.T) {
+	exp := "220 smtp.gmail.com ESMTP"
 
-// 	out := GetTCPHeader("smtp.gmail.com", "25")
+	out := GetTCPHeader("smtp.gmail.com", "587")
 
-// 	if !strings.HasPrefix(out, exp) {
-// 		t.Errorf("wrong prefix, got: %s, want: %s", out, exp)
-// 	}
-// }
+	if !strings.HasPrefix(out, exp) {
+		t.Errorf("wrong prefix, got: %s, want: %s", out, exp)
+	}
+}
