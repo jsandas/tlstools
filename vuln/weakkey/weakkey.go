@@ -28,8 +28,9 @@ func WeakKey(keysize int, modulus string) bool {
 
 	// bpath is the location of weakkeys binaries
 	// these are copied there during the docker build
-	p, err := os.Executable()
+	p, _ := os.Executable()
 	bpath := path.Dir(p)
+	logger.Errorf("event_id=weak_key_exec_path cwd=%s bpath=%s", p, bpath)
 
 	mod := fmt.Sprintf("Modulus=%s\n", strings.ToUpper(modulus))
 	ks := strconv.Itoa(keysize)
@@ -53,7 +54,7 @@ func WeakKey(keysize int, modulus string) bool {
 		bpath = "vuln/weakkey/bin"
 	}
 
-	logger.Errorf("event_id=weak_key_path cwd=%s dir:%s path:%s", cwd, dir, bpath)
+	logger.Errorf("event_id=weak_key_path cwd=%s dir=%s path=%s", cwd, dir, bpath)
 	// load weak key file
 	b, err := ioutil.ReadFile(bpath + "/weak_keysize_" + ks)
 	if err != nil {
