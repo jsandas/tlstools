@@ -1,23 +1,23 @@
-name: build tlstools docker image
+# name: build tlstools docker image
 
-on:
-  push:
-    branches:
-      - master
+# on:
+#   push:
+#     branches:
+#       - master
 
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    name: Docker Build, Tag, Push
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+# jobs:
+#   build-and-push:
+#     runs-on: ubuntu-latest
+#     name: Docker Build, Tag, Push
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v2
 
-      - name: Build image
-        run: docker build --tag ghcr.io/jsandas/tlstools/tlstools . 
+#       - name: Build image
+#         run: docker build --tag ghcr.io/jsandas/tlstools/tlstools . 
 
-      - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/jsandas -u ${{ github.actor }} --password-stdin
+#       - name: Log into registry
+#         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/jsandas -u ${{ github.actor }} --password-stdin
 
-      - name: Push image
-        run: docker push ghcr.io/jsandas/tlstools/tlstools
+#       - name: Push image
+#         run: docker push ghcr.io/jsandas/tlstools/tlstools
