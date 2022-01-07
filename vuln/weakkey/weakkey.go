@@ -53,7 +53,7 @@ func WeakKey(keysize int, modulus string) bool {
 		bpath = "vuln/weakkey/bin"
 	}
 
-	logger.Errorf("event_id=weak_key_path path:\"%s\"", bpath)
+	logger.Errorf("event_id=weak_key_path cwd=%s dir:%s path:%s", cwd, dir, bpath)
 	// load weak key file
 	b, err := ioutil.ReadFile(bpath + "/weak_keysize_" + ks)
 	if err != nil {
