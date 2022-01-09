@@ -1,12 +1,6 @@
 name: run unit tests
 
-on:
-  push:
-    branches:
-      - '!releases/*'
-  # pull_request:
-  #   branches:
-  #     - master
+on: [push, pull_request]
 
 jobs:
   unit-testing:
