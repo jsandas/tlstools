@@ -1,8 +1,9 @@
 name: run unit tests
 
-on: [push]
-    # branches:
-    #   - '!releases/*'
+on:
+  push:
+    branches:
+      - '!releases/*'
   # pull_request:
   #   branches:
   #     - master
