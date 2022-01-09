@@ -48,7 +48,7 @@ func TestCheck(t *testing.T) {
 			rw.Write([]byte("Hello"))
 		}
 	}))
-	server.Config.TLSConfig = &tls.Config{
+	server.TLS = &tls.Config{
 		// CipherSuites: uint16[],
 		MinVersion: uint16(VersionTLS10),
 		MaxVersion: uint16(VersionTLS13),
@@ -65,7 +65,7 @@ func TestCheck(t *testing.T) {
 	l := Check(host, port, "RSA")
 
 	// if less than 4 protocols supported
-	if len(l) < 4 {
+	if len(l) != 4 {
 		t.Errorf("protocol count incorrect, got: %d, want: >= %d.", len(l), 3)
 	}
 }
