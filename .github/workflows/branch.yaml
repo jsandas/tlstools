@@ -9,7 +9,7 @@ on:
   #     - master
 
 jobs:
-  unit_testing:
+  unit-testing:
     runs-on: ubuntu-latest
     name: Unit tests
     steps:
