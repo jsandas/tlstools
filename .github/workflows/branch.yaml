@@ -1,0 +1,31 @@
+name: run unit tests
+
+on:
+  push:
+    branches:
+      - '!releases/*'
+  # pull_request:
+  #   branches:
+  #     - master
+
+jobs:
+  unit-testing:
+    runs-on: ubuntu-latest
+    name: Unit tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Setup for unit tests
+        run: (cd test_setup && ./gen-certs.sh)
+
+      - name: Run unit tests
+        run: go test -v ./...
