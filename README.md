@@ -1,4 +1,4 @@
-![unit tests](https://github.com/jsandas/tlstools/actions/workflows/unit.yml/badge.svg?branch=master)
+![unit tests](https://github.com/jsandas/tlstools/actions/workflows/unit.yml/badge.svg?branch=master)   ![release](https://github.com/jsandas/tlstools/actions/workflows/main.yml/badge.svg?branch=master)
 
 tlstools is an api for testing ssl related things
 
