@@ -58,6 +58,6 @@ func TestCheck(t *testing.T) {
 
 	// if less than 4 protocols supported
 	if len(l) < 4 {
-		t.Errorf("protocol count incorrect, got: %d, want: >= %d.", len(l), 3)
+		t.Errorf("protocol count incorrect, got: %+x, want: >= %d.", l, 3)
 	}
 }
