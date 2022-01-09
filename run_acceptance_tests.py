@@ -1,13 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import os
 import subprocess
 import sys
 import time
-import urllib
-
-import urllib2
+import urllib.request
+import urllib.parse
 
 APP_HOST = "http://localhost:8080/api/v1"
 SCAN_URL = APP_HOST + "/scan"
@@ -75,12 +74,12 @@ def success():
 
 
 def scan_test(host, data):
-    params = urllib.urlencode({'host':host})
+    params = urllib.parse.urlencode({'host':host})
     url = SCAN_URL + '?' + params
     res = {}
 
     try:
-        req = urllib2.urlopen(url)
+        req = urllib.request.urlopen(url)
         res = json.loads(req.read())
     except Exception as e:
         print("failed to connect to {}".format(host), e)
@@ -123,10 +122,11 @@ def scan_test(host, data):
 
 
 def test_cert():  
-    req = urllib2.Request(CERT_URL, rsaCert)
+    data = bytes(rsaCert, 'utf-8')
+    req = urllib.request.Request(CERT_URL, data)
     req.add_header('Content-Length', '%d' % len(rsaCert))
     req.add_header('Content-Type', 'application/octet-stream')
-    res = urllib2.urlopen(req).read()
+    res = urllib.request.urlopen(req).read()
     data = json.loads(res)
 
     key_type = data['keyType'] or ""
@@ -152,10 +152,11 @@ def test_cert():
 
 
 def test_csr():  
-    req = urllib2.Request(CSR_URL, ecdsaCSR)
+    data = bytes(ecdsaCSR, 'utf-8')
+    req = urllib.request.Request(CSR_URL, data)
     req.add_header('Content-Length', '%d' % len(ecdsaCSR))
     req.add_header('Content-Type', 'application/octet-stream')
-    res = urllib2.urlopen(req).read()
+    res = urllib.request.urlopen(req).read()
     data = json.loads(res)
 
     key_type = data['keyType'] or ""
@@ -191,9 +192,9 @@ def main():
     for test, data in test_cases.items():
         scan_test(test, data)
 
-    test_csr()
-
     test_cert()
+
+    test_csr()
 
     subprocess.call(["docker-compose", "-f", "acceptance.yml", "down"], stdout=open(os.devnull, 'wb'))
 
