@@ -4,7 +4,7 @@ tlstools is an api for testing ssl related things
 
 Supported functions:
 * certificate installation
-* which ssl/tls protocols are supported (DHE/MD5 with openssl)
+* which ssl/tls protocols are supported
 * which common ssl/tls ciphers are supported
 * heartbleed test
 * debain weak key test
