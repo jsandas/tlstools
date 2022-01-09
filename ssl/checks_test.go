@@ -39,8 +39,8 @@ func TestConnect(t *testing.T) {
 }
 
 func TestCheck(t *testing.T) {
-	// Start a local HTTPS server
-	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+	// create local https server
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
 		if req.URL.String() == "/" {
 			// Send response to be tested
@@ -48,6 +48,14 @@ func TestCheck(t *testing.T) {
 			rw.Write([]byte("Hello"))
 		}
 	}))
+	server.Config.TLSConfig = &tls.Config{
+		// CipherSuites: uint16[],
+		MinVersion: uint16(VersionTLS10),
+		MaxVersion: uint16(VersionTLS13),
+	}
+	// Start a local HTTPS server
+	server.StartTLS()
+
 	// Close the server when test finishes
 	defer server.Close()
 
@@ -58,6 +66,6 @@ func TestCheck(t *testing.T) {
 
 	// if less than 4 protocols supported
 	if len(l) < 4 {
-		t.Errorf("protocol count incorrect, got: %+v, want: >= %d.", l, 3)
+		t.Errorf("protocol count incorrect, got: %d, want: >= %d.", len(l), 3)
 	}
 }
