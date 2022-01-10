@@ -1,4 +1,4 @@
-[!{unit}](https://github.com/jsandas/tlstools/actions/workflows/unit.yaml/badge.svg?branch=master)](https://github.com/jsandas/tlstools/actions/workflows/unit.yaml)
+[![unit](https://github.com/jsandas/tlstools/actions/workflows/unit.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/unit.yaml)
 [![acceptance](https://github.com/jsandas/tlstools/actions/workflows/acceptance.yml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/acceptance.yml)
 [![build](https://github.com/jsandas/tlstools/actions/workflows/main.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/main.yaml)
 
