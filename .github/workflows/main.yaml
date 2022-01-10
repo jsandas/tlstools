@@ -1,4 +1,4 @@
-name: build tlstools docker image
+name: main
 
 on:
   push:
