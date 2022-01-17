@@ -54,8 +54,15 @@ func Heartbleed(host string, port string, tlsVers int) string {
 
 	hBEnabled, err := checkHandshake(connbuf)
 	if err != nil {
-		logger.Errorf("event_id=heartbleed_handshake_failed msg=\"%v\"", err)
-		return er
+		switch err.Error() {
+		// some applications reset the tcp connection
+		// when probing for heartbleed
+		case "EOF":
+			return safe
+		default:
+			logger.Errorf("event_id=heartbleed_handshake_failed msg=\"%v\"", err)
+			return er
+		}
 	}
 
 	if !hBEnabled {
@@ -133,6 +140,7 @@ func heartbeatListen(buff *bufio.Reader) string {
 		b, err := buff.ReadByte()
 		data = append(data, b)
 		if err != nil {
+			logger.Debugf("event_id=heartbleed_error msg=%v", err)
 			break
 		}
 
