@@ -6,4 +6,4 @@ testcertificates
 *.pem
 *.key
 coverage.txt
-vscode
+.vscode
