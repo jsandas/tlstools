@@ -142,7 +142,7 @@ func opensslDial(host string, port string, proto int, ciphers []uint16) bool {
 		cmd = exec.Command(path, clientStr, connectStr, s, servernameStr, host, p)
 	}
 
-	if service != "https" || strings.HasSuffix(service, "SSL") {
+	if service != "https" && service != "rdp" || strings.HasSuffix(service, "SSL") {
 		cmd = exec.Command(path, clientStr, connectStr, s, servernameStr, host, p, cipherStr, c, startTLSStr, service)
 		if c == "" {
 			// override cmd if c is empty
