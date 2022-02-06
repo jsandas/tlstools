@@ -125,7 +125,7 @@ func StartTLS(conn net.Conn, port string) (err error) {
 
 	proto := utils.GetService(port)
 
-	if proto == "https" || strings.HasSuffix(proto, "SSL") {
+	if proto == "https" || proto == "rdp" || strings.HasSuffix(proto, "SSL") {
 		return
 	}
 
