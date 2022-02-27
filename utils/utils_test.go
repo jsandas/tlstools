@@ -52,6 +52,14 @@ func TestDownloadBinFile(t *testing.T) {
 	}
 }
 
+func TestGenRandBytes(t *testing.T) {
+	r, _ := GenRandBytes(32)
+
+	if len(r) != 32 {
+		t.Errorf("wrong random bytes length, got: %d, want: %d.", len(r), 32)
+	}
+}
+
 func TestBytetoInt(t *testing.T) {
 	b, _ := hex.DecodeString("8034")
 	expI := 32820
@@ -88,15 +96,16 @@ func TestGetHTTPHeader(t *testing.T) {
 
 func TestGetService(t *testing.T) {
 	var l = map[string]string{
-		"21":  "ftp",
-		"25":  "smtp",
-		"465": "smtpSSL",
-		"587": "smtp",
-		"110": "pop3",
-		"995": "pop3SSL",
-		"143": "imap",
-		"993": "imapSSL",
-		"443": "https",
+		"21":   "ftp",
+		"25":   "smtp",
+		"465":  "smtpSSL",
+		"587":  "smtp",
+		"110":  "pop3",
+		"995":  "pop3SSL",
+		"143":  "imap",
+		"993":  "imapSSL",
+		"443":  "https",
+		"3389": "rdp",
 	}
 
 	for k, v := range l {
