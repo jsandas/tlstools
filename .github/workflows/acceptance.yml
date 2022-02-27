@@ -1,4 +1,4 @@
-name: acceptance
+name: tests
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 jobs:
   acceptance_testing:
     runs-on: ubuntu-latest
-    name: Acceptance Testing
+    name: Acceptance
     steps:
       - name: Checkout
         uses: actions/checkout@v2
