@@ -1,11 +1,11 @@
-name: unit
+name: tests
 
 on: [push]
 
 jobs:
   unit-testing:
     runs-on: ubuntu-latest
-    name: Unit tests
+    name: Unit
     steps:
       - name: Checkout
         uses: actions/checkout@v2
