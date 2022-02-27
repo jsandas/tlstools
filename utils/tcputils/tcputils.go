@@ -49,6 +49,7 @@ func GetTCPHeader(host string, port string) (header string) {
 	}
 	defer conn.Close()
 
+	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
 	line := string(Read(conn))
 
 	return strings.TrimRight(line, "\r\n")

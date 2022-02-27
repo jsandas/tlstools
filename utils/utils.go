@@ -123,6 +123,8 @@ func GetService(port string) (proto string) {
 		proto = "imap"
 	case "993":
 		proto = "imapSSL"
+	case "3389":
+		proto = "rdp"
 	default:
 		proto = "https"
 	}
