@@ -25,7 +25,7 @@ func Check(host string, port string) string {
 	scanner, err := nmap.NewScanner(
 		nmap.WithTargets(host),
 		nmap.WithPorts(port),
-		nmap.WithScripts("./vuln/ccs/script/"),
+		nmap.WithScripts("./vuln/scripts/ssl-ccs-injection.nse"),
 		nmap.WithContext(ctx),
 	)
 	if err != nil {
@@ -42,6 +42,7 @@ func Check(host string, port string) string {
 	count := len(result.Hosts[0].Ports[0].Scripts)
 
 	if count == 0 {
+		logger.Debugf("event_id=ccs_test status=%s", safe)
 		return safe
 	}
 
