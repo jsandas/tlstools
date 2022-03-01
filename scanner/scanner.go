@@ -38,6 +38,7 @@ type Results struct {
 type Vulnerabilities struct {
 	DebianWeakKey bool   `json:"debianWeakKey"`
 	Heartbleed    string `json:"heartbleed"`
+	CCSInjection  string `json:"ccsinjection"`
 }
 
 func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertData {
@@ -108,6 +109,8 @@ func (r *Results) Scan(host string, port string) {
 	}()
 
 	r.Vulnerabilities.Heartbleed = vuln.Heartbleed(host, port, tlsVers)
+
+	r.Vulnerabilities.CCSInjection = vuln.CCSInjection(host, port)
 
 	if certs[0].PublicKeyAlgorithm.String() == "RSA" {
 		pubKey := certs[0].PublicKey.(*rsa.PublicKey)

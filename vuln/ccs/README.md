@@ -1,11 +1,6 @@
-Heartbleed is an old vulnerable to specific versions of OpenSSL and anything compiled against those affect versions
-
-The vulnerability is in the heartbeat extension.  The extension allows you to specificy an arbitrary length for the
-heartbeat message.  On the server side it does not validate that the message length is correct with the heartbeat 
-request length and will cause a buffer overflow and return data in memory to the length of the heartbeat message or
-up to 64k.
-
-Go does not support heartbeats and would require forking the tls library to add it.  Instead this check generates the
-bytes that make up a tls clientHello and Heartbeat message and send this over a tcp connection while parsing the response
-to check if the server returned more data than it should have.  This idea was taken from how the "testssl" package performs 
-the heartbleed vulnerability check. (https://github.com/drwetter/testssl.sh/blob/3.0/utils/heartbleed.bash)
+OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h
+does not properly restrict processing of ChangeCipherSpec messages,
+which allows man-in-the-middle attackers to trigger use of a zero
+length master key in certain OpenSSL-to-OpenSSL communications, and
+consequently hijack sessions or obtain sensitive information, via
+a crafted TLS handshake, aka the "CCS Injection" vulnerability.

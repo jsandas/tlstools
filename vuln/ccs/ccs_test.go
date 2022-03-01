@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestBleedNotEnabled(t *testing.T) {
+func TestCheck(t *testing.T) {
 	// Start a local HTTPS server
 	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
@@ -24,16 +24,10 @@ func TestBleedNotEnabled(t *testing.T) {
 	s := strings.Replace(server.URL, "https://", "", -1)
 	host, port, _ := net.SplitHostPort(s)
 
-	status := Heartbleed(host, port, 771)
+	status := Check(host, port)
 
-	if status != "n/a" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "n/a")
-	}
-
-	statusTLS13 := Heartbleed(host, port, 772)
-
-	if statusTLS13 != "n/a" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "n/a")
+	if status != "no" {
+		t.Errorf("Wrong return, got: %s, want: %s.", status, "no")
 	}
 }
 
@@ -46,11 +40,3 @@ func TestBleedNotEnabled(t *testing.T) {
 // 		t.Errorf("Wrong return, got: %s, want: %s.", status, "no")
 // 	}
 // }
-
-func TestBleedTimeout(t *testing.T) {
-	status := Heartbleed("127.0.0.1", "4242", 771)
-
-	if status != "error" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "error")
-	}
-}
