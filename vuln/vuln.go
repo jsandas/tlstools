@@ -1,6 +1,7 @@
 package vuln
 
 import (
+	"github.com/jsandas/tlstools/vuln/ccs"
 	"github.com/jsandas/tlstools/vuln/heartbleed"
 	"github.com/jsandas/tlstools/vuln/weakkey"
 )
@@ -14,4 +15,10 @@ func DebianWeakKey(keysize int, modulus string) bool {
 // using github.com/FiloSottile/Heartbleed for this check
 func Heartbleed(host string, port string, tlsVers int) string {
 	return heartbleed.Heartbleed(host, port, tlsVers)
+}
+
+// Heartbleed used to check for heartbleed on server
+// using github.com/FiloSottile/Heartbleed for this check
+func CCSInjection(host string, port string) string {
+	return ccs.Check(host, port)
 }
