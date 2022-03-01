@@ -99,7 +99,7 @@ func GetHTTPHeader(host string, port string, name string) (header string) {
 		logger.Warnf("event_id=http_client_failed msg=\"%v\"", err)
 	}
 	header = resp.Header.Get(name)
-	logger.Debugf("event_id=retrieved_header name=% value=%s", name, header)
+	logger.Debugf("event_id=retrieved_header name=%s value=%s", name, header)
 
 	return
 }
