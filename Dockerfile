@@ -27,7 +27,7 @@ COPY --from=ghcr.io/jsandas/openssl-tester/openssl:1.0.2-chacha /usr/local/lib/s
 COPY --from=build /usr/local/bin/tlstools /usr/local/bin/tlstools
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY vuln/weakkey/bin /usr/local/bin
-COPY vuln/scripts /usr/local/bin/vuln/scripts
+COPY vuln/scripts /usr/local/bin/scripts
 
 USER appuser
 

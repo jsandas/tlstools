@@ -2,6 +2,9 @@ package ccs
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -19,13 +22,31 @@ const (
 func Check(host string, port string) string {
 	vuln := safe
 
+	// spath is the location of weakkeys binaries
+	// these are copied there during the docker build
+	p, _ := os.Executable()
+	spath := path.Dir(p)
+
+	// override spath if running go test
+	// or go run
+	cwd, _ := os.Getwd()
+	_, dir := path.Split(cwd)
+	if dir == "ccs" {
+		spath = "../scripts"
+	} else if dir == "bin" {
+		spath = "scripts"
+	}
+
+	path, _ := os.Getwd()
+	fmt.Println(path)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 
 	scanner, err := nmap.NewScanner(
 		nmap.WithTargets(host),
 		nmap.WithPorts(port),
-		nmap.WithScripts("./vuln/scripts/ssl-ccs-injection.nse"),
+		nmap.WithScripts(spath+"/ssl-ccs-injection.nse"),
 		nmap.WithContext(ctx),
 	)
 	if err != nil {
