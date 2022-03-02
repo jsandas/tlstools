@@ -1,11 +1,13 @@
 # build go binary
 FROM golang:1.17 as build
 
-COPY . /src/tlstools
+COPY . /go/src/tlstools
 
-WORKDIR /src/tlstools
+WORKDIR /go/src/tlstools
 
 RUN go mod download
+
+RUN apt update && apt install -y nmap
 
 RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools
 
