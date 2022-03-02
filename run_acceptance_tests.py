@@ -22,12 +22,14 @@ test_cases = {
         "exp_server": "nginx/1.2.9",
         "exp_config_len": 5,
         "exp_hbleed": "yes",
+        "exp_ccsinjection": "yes"
     },
     "postfix_vuln:25": {
         "exp_key_type": "RSA-2048",
         "exp_server": "220 mail.example.com ESMTP Postfix (Ubuntu)",
         "exp_config_len": 4,
         "exp_hbleed": "no",
+        "exp_ccsinjection": "no"
     },
 }
 
@@ -95,6 +97,7 @@ def scan_test(host, data):
     server = conn['serverHeader']
     config = conn['supportedConfig']
     hbleed = vuln['heartbleed']
+    ccs = vuln['ccsinjection']
 
     if key_type != data['exp_key_type']:
         print("wrong key type, got {}, wanted {}".format(key_type, data['exp_key_type']))
@@ -116,6 +119,12 @@ def scan_test(host, data):
 
     if hbleed != data['exp_hbleed']:
         print("wrong heartbleed result, got {}, wanted {}".format(hbleed, data['exp_hbleed']))
+        error()
+    else:
+        success()
+
+    if ccs != data['exp_ccsinjection']:
+        print("wrong ccsinjection result, got {}, wanted {}".format(ccs, data['exp_ccsinjection']))
         error()
     else:
         success()

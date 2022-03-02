@@ -1,16 +1,23 @@
 # build go binary
 FROM golang:1.17 as build
 
-COPY . /src/tlstools
+COPY . /go/src/tlstools
 
-WORKDIR /src/tlstools
+WORKDIR /go/src/tlstools
 
 RUN go mod download
+
+RUN apt update && apt install -y nmap
 
 RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools
 
 # build final image
 FROM debian
+
+RUN apt update && apt upgrade -y \
+    && apt install -y nmap \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -r appuser
 
@@ -22,7 +29,10 @@ COPY --from=ghcr.io/jsandas/openssl-tester/openssl:1.0.2-chacha /usr/local/lib/s
 COPY --from=build /usr/local/bin/tlstools /usr/local/bin/tlstools
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY vuln/weakkey/bin /usr/local/bin
+COPY vuln/scripts /usr/local/bin/scripts
 
 USER appuser
+
+WORKDIR /usr/local/bin
 
 ENTRYPOINT ["/usr/local/bin/tlstools"]
