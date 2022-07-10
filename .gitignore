@@ -1,9 +1,11 @@
 tlstools
 *.bin
-ca
+ca-rsa
+ca-ecc
 testcertificates
 *.crl
 *.pem
 *.key
+*.csr
 coverage.txt
 .vscode
