@@ -7,17 +7,25 @@ services:
       context: .
     ports:
       - "8080:8080" 
-      
-  nginx_vuln:
+
+  nginx:
     build:
       context: test_setup/conf/nginx
-    image: jsandas/nginx_vuln
+    image: jsandas/nginx
+    ports:
+      - "9080:80"
+      - "9443:443"
+    
+  nginx_bad:
+    build:
+      context: test_setup/conf/nginx_bad
+    image: jsandas/nginx_bad
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - $PWD/test_setup/conf/nginx/nginx.conf:/usr/local/nginx/conf/nginx.conf
-
+    # volumes:
+    #   - $PWD/test_setup/conf/nginx_bad/nginx.conf:/usr/local/nginx/conf/nginx.conf
+  
   postfix_vuln:
     build:
       context: test_setup/conf/postfix
