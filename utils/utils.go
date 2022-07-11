@@ -82,6 +82,7 @@ func GetHTTPHeader(host string, port string, name string) (header string) {
 	var server = host + ":" + port
 
 	tlsCfg := &tls.Config{
+		ServerName:         host,
 		InsecureSkipVerify: true,
 	}
 

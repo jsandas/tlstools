@@ -64,7 +64,8 @@ func TestCheck(t *testing.T) {
 	port := s[1]
 	l := Check(host, port, "RSA")
 
-	// if less than 4 protocols supported
+	// the httptest tlsserver seems to sometimes not allow both specified protocols
+	// which can cause this test to fail sometimes...
 	if len(l) != 2 {
 		t.Errorf("protocol count incorrect, got: %d, want: %d.", len(l), 2)
 	}
