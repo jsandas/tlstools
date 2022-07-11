@@ -17,7 +17,14 @@ ERRORS = 0
 SUCCESS = 0
 
 test_cases = {
-    "nginx_vuln": {
+    "nginx": {
+        "exp_key_type": "ECDSA-383",
+        "exp_server": "nginx/1.23.0",
+        "exp_config_len": 2,
+        "exp_hbleed": "n/a",
+        "exp_ccsinjection": "no"
+    },
+    "nginx_bad": {
         "exp_key_type": "RSA-2048",
         "exp_server": "nginx/1.2.9",
         "exp_config_len": 5,
