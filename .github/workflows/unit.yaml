@@ -1,4 +1,4 @@
-name: tests
+name: unit test
 
 on: [push]
 
@@ -8,7 +8,7 @@ jobs:
     name: Unit
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build test image
         run: docker build -t test --target=build .
