@@ -18,7 +18,7 @@ SUCCESS = 0
 
 test_cases = {
     "nginx": {
-        "exp_key_type": "ECDSA-383",
+        "exp_key_type": "ECDSA-384",
         "exp_server": "nginx/1.23.0",
         "exp_config_len": 2,
         "exp_hbleed": "n/a",
