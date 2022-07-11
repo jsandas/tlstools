@@ -1,4 +1,4 @@
-name: tests
+name: acceptance test
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ jobs:
     name: Acceptance
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Run acceptance tests
         run: ./run_acceptance_tests.py
