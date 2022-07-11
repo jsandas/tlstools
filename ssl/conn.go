@@ -29,6 +29,7 @@ func ConnState(host string, port string) (connState tls.ConnectionState, tlsv in
 	var server = host + ":" + port
 
 	tlsCfg := tls.Config{
+		ServerName:         host,
 		InsecureSkipVerify: true,
 	}
 
@@ -60,6 +61,7 @@ func serverDial(host string, port string, proto int, ciphers []uint16) (connecte
 	var server = host + ":" + port
 
 	tlsCfg := tls.Config{
+		ServerName:         host,
 		InsecureSkipVerify: true,
 		CipherSuites:       ciphers,
 		MinVersion:         uint16(proto),
@@ -68,6 +70,7 @@ func serverDial(host string, port string, proto int, ciphers []uint16) (connecte
 
 	if ciphers == nil {
 		tlsCfg = tls.Config{
+			ServerName:         host,
 			InsecureSkipVerify: true,
 			MinVersion:         uint16(proto),
 			MaxVersion:         uint16(proto),
