@@ -13,16 +13,14 @@ services:
       context: test_setup/conf/nginx
     image: jsandas/nginx
     ports:
-      - "9080:80"
-      - "9443:443"
+      - "443:443"
     
   nginx_bad:
     build:
       context: test_setup/conf/nginx_bad
     image: jsandas/nginx_bad
     ports:
-      - "80:80"
-      - "443:443"
+      - "8443:443"
     # volumes:
     #   - $PWD/test_setup/conf/nginx_bad/nginx.conf:/usr/local/nginx/conf/nginx.conf
   
