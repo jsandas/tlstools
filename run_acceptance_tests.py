@@ -39,6 +39,13 @@ test_cases = {
         "exp_hbleed": "no",
         "exp_ccsinjection": "no"
     },
+    "postfix_bad:587": {
+        "exp_key_type": "RSA-2048",
+        "exp_server": "220 mail.example.com ESMTP Postfix (Ubuntu)",
+        "exp_config_len": 4,
+        "exp_hbleed": "no",
+        "exp_ccsinjection": "no"
+    },
 }
 
 rsaCert = """-----BEGIN CERTIFICATE-----
