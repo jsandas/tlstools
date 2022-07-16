@@ -17,7 +17,7 @@ ERRORS = 0
 SUCCESS = 0
 
 test_cases = {
-    "nginx": {
+    "nginx_good": {
         "exp_key_type": "ECDSA-384",
         "exp_server": "nginx/1.23.0",
         "exp_config_len": 2,
@@ -199,8 +199,8 @@ def test_csr():
 
 def main():
     # setup for acceptance tests
-    subprocess.call(["docker-compose", "-f", "acceptance.yml", "build"], stdout=open(os.devnull, 'wb'))
-    subprocess.call(["docker-compose", "-f", "acceptance.yml", "up", "-d"])
+    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "build"], stdout=open(os.devnull, 'wb'))
+    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "up", "-d"])
 
     # sleep for containers to come up
     time.sleep(20)
@@ -212,7 +212,7 @@ def main():
 
     test_csr()
 
-    subprocess.call(["docker-compose", "-f", "acceptance.yml", "down"], stdout=open(os.devnull, 'wb'))
+    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "down"], stdout=open(os.devnull, 'wb'))
 
     if ERRORS > 0:
         msg = "{} of {} tests failed".format(ERRORS, (ERRORS + SUCCESS))
