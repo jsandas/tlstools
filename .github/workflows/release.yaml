@@ -19,16 +19,19 @@ jobs:
           echo "CHART_VERSION=$(cat chart/tlstools/Chart.yaml | grep version: | awk '{print $2}')" >> $GITHUB_ENV
 
       - name: Build image
-        run: docker build --tag ghcr.io/jsandas/tlstools/tlstools --tag ghcr.io/jsandas/tlstools/tlstools:${{ env.RELEASE_VERSION }} . 
+        run: docker build --tag ghcr.io/jsandas/tlstools --tag ghcr.io/jsandas/tlstools:${{ env.RELEASE_VERSION }} . 
 
       - name: Push image
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/jsandas -u ${{ github.actor }} --password-stdin
-          docker push --all-tags ghcr.io/jsandas/tlstools/tlstools
+          docker push --all-tags ghcr.io/jsandas/tlstools
           docker logout ghcr.io/jsandas
 
       - name: Helm package
         run: helm package chart/tlstools --dependency-update --app-version=${{ env.RELEASE_VERSION }}
 
       - name: Helm push
-        run: helm push tlstools-${{ env.CHART_VERSION }}.tgz oci://ghcr.io/jsandas
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/jsandas -u ${{ github.actor }} --password-stdin
+          helm push tlstools-${{ env.CHART_VERSION }}.tgz oci://ghcr.io/jsandas
+          docker logout ghcr.io/jsandas
