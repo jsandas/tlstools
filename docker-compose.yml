@@ -2,8 +2,6 @@ version: "3.7"
 
 services:
   tlstools:
-    image: jsandas/tlstools
-    build:
-      context: .
+    image: ghcr.io/jsandas/tlstools
     ports:
       - "8080:8080" 
