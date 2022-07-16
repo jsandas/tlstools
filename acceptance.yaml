@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+  tlstools:
+    image: tlstools
+    build:
+      context: .
+    ports:
+      - "8080:8080" 
+
+  nginx_good:
+    image: ghcr.io/jsandas/nginx_good
+    ports:
+      - "443:443"
+    
+  nginx_bad:
+    image: ghcr.io/jsandas/nginx_bad
+    ports:
+      - "8443:443"
+  
+  postfix_bad:
+    image: ghcr.io/jsandas/postfix_bad
+    ports:
+      - "25:25"
+      - "587:587"
+    environment:
+      - maildomain=mail.example.com
+      - smtp_user=user:pwd
+
