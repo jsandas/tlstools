@@ -1,4 +1,4 @@
-tlstools
+/tlstools
 *.bin
 ca-rsa
 ca-ecc
