@@ -32,7 +32,7 @@ test_cases = {
         "exp_hbleed": "yes",
         "exp_ccsinjection": "yes"
     },
-    "postfix_vuln:25": {
+    "postfix_bad:25": {
         "exp_key_type": "RSA-2048",
         "exp_server": "220 mail.example.com ESMTP Postfix (Ubuntu)",
         "exp_config_len": 4,
@@ -199,18 +199,9 @@ def test_csr():
     
 
 def main():
-    parser = argparse.ArgumentParser(description='TLSTOOLS acceptance runner')
-    parser.add_argument('--build', action='store_true')
-
-    args = parser.parse_args()
-
-    # setup for acceptance tests
-    if args.build:
-        print(" Forced build of container images...")
-        subprocess.call(["docker-compose", "-f", "acceptance.yaml", "build", "--no-cache", "--pull"], stdout=open(os.devnull, 'wb'))
-    
     print(" Starting environment...")
-    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "up", "-d"])
+    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "pull"])
+    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "up", "-d", "--build"])
 
     # sleep for containers to come up
     time.sleep(20)
@@ -223,7 +214,7 @@ def main():
     test_csr()
 
     print(" Stopping environment...")
-    subprocess.call(["docker-compose", "-f", "acceptance.yml", "down"], stdout=open(os.devnull, 'wb'))
+    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "down"], stdout=open(os.devnull, 'wb'))
 
     if ERRORS > 0:
         msg = "{} of {} tests failed".format(ERRORS, (ERRORS + SUCCESS))
