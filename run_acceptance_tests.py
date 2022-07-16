@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import json
 import os
 import subprocess
@@ -198,9 +199,18 @@ def test_csr():
     
 
 def main():
+    parser = argparse.ArgumentParser(description='TLSTOOLS acceptance runner')
+    parser.add_argument('--build', action=argparse.BooleanOptionalAction)
+
+    args = parser.parse_args()
+
     # setup for acceptance tests
-    subprocess.call(["docker-compose", "-f", "acceptance.yml", "build"], stdout=open(os.devnull, 'wb'))
-    subprocess.call(["docker-compose", "-f", "acceptance.yml", "up", "-d"])
+    if args.build:
+        print(" Forced build of container images...")
+        subprocess.call(["docker-compose", "-f", "acceptance.yaml", "build", "--no-cache", "--pull"], stdout=open(os.devnull, 'wb'))
+    
+    print(" Starting environment...")
+    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "up", "-d"])
 
     # sleep for containers to come up
     time.sleep(20)
@@ -212,6 +222,7 @@ def main():
 
     test_csr()
 
+    print(" Stopping environment...")
     subprocess.call(["docker-compose", "-f", "acceptance.yml", "down"], stdout=open(os.devnull, 'wb'))
 
     if ERRORS > 0:
