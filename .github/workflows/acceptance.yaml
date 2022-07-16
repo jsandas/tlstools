@@ -13,8 +13,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build Container Images
-        run: COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f acceptance.yaml build
-
       - name: Run acceptance tests
         run: ./run_acceptance_tests.py
