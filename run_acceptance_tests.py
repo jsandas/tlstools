@@ -200,7 +200,7 @@ def test_csr():
 
 def main():
     parser = argparse.ArgumentParser(description='TLSTOOLS acceptance runner')
-    parser.add_argument('--build', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--build', action='store_true')
 
     args = parser.parse_args()
 
