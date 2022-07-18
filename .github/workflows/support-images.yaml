@@ -25,10 +25,15 @@ jobs:
         run: |
           docker build --tag ghcr.io/jsandas/postfix_bad test_setup/conf/postfix_bad
 
+      - name: Build good mariadb image
+        run: |
+          docker build --tag ghcr.io/jsandas/mariadb_good test_setup/conf/mariadb_good
+
       - name: Push images
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/jsandas -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/jsandas/nginx_good
           docker push ghcr.io/jsandas/nginx_bad
           docker push ghcr.io/jsandas/postfix_bad
+          docker push ghcri.io/jsandas/mariadb_good
           docker logout ghcr.io/jsandas

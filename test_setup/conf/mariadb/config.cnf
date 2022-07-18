@@ -1,0 +1,7 @@
+[mysqld]
+# For documentation, please read
+# https://mariadb.com/kb/en/securing-connections-for-client-and-server/
+ssl-ca = /etc/mysql/cert.pem
+ssl-cert = /etc/mysql/cert.pem
+ssl-key = /etc/mysql/cert.key
+require-secure-transport = on
