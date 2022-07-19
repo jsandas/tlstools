@@ -26,11 +26,12 @@ To run unit test:
 ```
 
 
-This programs depends on openssl for the protocol/cipher support check as the go tls library only implements a subset of available ciphers.  This was determined to be less effort than forking the golang TLS library and maintaining that seperately.  The docker image contains a specialy compile version of openssl which supports all ciphers for TLS 1.2 and lower.
+This programs depends on openssl for the protocol/cipher support check as the go tls library only implements a subset of possible ciphers.  This was determined to be less effort than forking the golang TLS library and maintaining that seperately.  The docker image contains specialy compiled versions of openssl which support many ciphers for TLS 1.3 and lower.
 
-The openssl binary and required libraries are pulled from a docker image based on the following dockerfile:
+The openssl binaries and required libraries are pulled from a docker image based on the following dockerfiles:
 ```
-https://github.com/jsandas/docker/blob/master/openssl-test/Dockerfile
+https://github.com/jsandas/docker/blob/master/openssl-test/Dockerfile1.0.2-chacha
+https://github.com/jsandas/docker/blob/master/openssl-test/Dockerfile1.1.1
 ```
 
 To view openssl supported ciphers:
@@ -54,18 +55,18 @@ curl -X POST --data-binary @test.csr "http://localhost:8080/api/v1/parser/csr"
 ```
 
 
-The acceptance.yml docker-compose file is intended to build and run containers for testing against different services.  
+The acceptance.yaml docker-compose file is intended to build and run containers for testing against different services.  
 
 Currently insecure nginx and postfix containers are provided for acceptance testing
 
 Build containers:
 ```
-docker-compose -f acceptance.yml build
+docker-compose -f acceptance.yaml build
 ```
 
 Run containers:
 ```
-docker-compose -f acceptance.yml up -d
+docker-compose -f acceptance.yaml up -d
 ```
 
 Run acceptance tests:

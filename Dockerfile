@@ -22,8 +22,10 @@ RUN apt update && apt upgrade -y \
 RUN useradd -r appuser
 
 # copy openssl files
-COPY --from=ghcr.io/jsandas/openssl-tester/openssl:1.0.2-chacha /usr/local/bin/openssl /usr/local/bin/
-COPY --from=ghcr.io/jsandas/openssl-tester/openssl:1.0.2-chacha /usr/local/lib/ssl /usr/local/lib/ssl
+COPY --from=ghcr.io/jsandas/openssl-tester/openssl:1.0.2-bad /usr/local/bin/openssl /usr/local/bin/openssl1.0.2
+COPY --from=ghcr.io/jsandas/openssl-tester/openssl:1.0.2-bad /usr/local/lib/ssl1.0.2 /usr/local/lib/ssl1.0.2
+COPY --from=ghcr.io/jsandas/openssl-tester/openssl:1.1.1-bad /usr/local/bin/openssl /usr/local/bin/openssl
+COPY --from=ghcr.io/jsandas/openssl-tester/openssl:1.1.1-bad /usr/local/lib/ssl1.1.1 /usr/local/lib/ssl1.1.1
 
 # copy tlstools files
 COPY --from=build /usr/local/bin/tlstools /usr/local/bin/tlstools
