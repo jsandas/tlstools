@@ -26,15 +26,14 @@ To run unit test:
 ```
 
 
-This programs depends on openssl for the protocol/cipher support check as the go tls library only implements a subset of possible ciphers.  This was determined to be less effort than forking the golang TLS library and maintaining that seperately.  The docker image contains specialy compiled versions of openssl which support many ciphers for TLS 1.3 and lower.
+This programs depends on openssl for the protocol/cipher support check as the go tls library only implements a subset of possible ciphers.  This was determined to be less effort than forking the golang TLS library and maintaining that seperately.  The docker image contains specialy compiled versions of openssl which support many ciphers for TLS 1.2 and lower.
 
-The openssl binaries and required libraries are pulled from a docker image based on the following dockerfiles:
+The openssl binary and required libraries are pulled from a docker image based on the following dockerfile:
 ```
 https://github.com/jsandas/docker/blob/master/openssl-test/Dockerfile1.0.2-chacha
-https://github.com/jsandas/docker/blob/master/openssl-test/Dockerfile1.1.1
 ```
 
-To view openssl supported ciphers:
+To view openssl supported ciphers, run the following inside the container:
 ```
 openssl ciphers -V 'ALL:COMPLEMENTOFALL'
 ```
