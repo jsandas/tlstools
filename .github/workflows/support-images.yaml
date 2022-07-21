@@ -35,5 +35,5 @@ jobs:
           docker push ghcr.io/jsandas/nginx_good
           docker push ghcr.io/jsandas/nginx_bad
           docker push ghcr.io/jsandas/postfix_bad
-          docker push ghcri.io/jsandas/mariadb_good
+          docker push ghcr.io/jsandas/mariadb_good
           docker logout ghcr.io/jsandas
