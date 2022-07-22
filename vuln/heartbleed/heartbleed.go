@@ -20,12 +20,16 @@ const (
 	er         = "error"
 )
 
+type Heartbleed struct {
+	Status           string `json:"status"`
+	ExtensionEnabled bool   `json:"extension"`
+}
+
 // Heartbleed test
-func Heartbleed(host string, port string, tlsVers int) string {
+func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 	conn, err := net.DialTimeout("tcp", host+":"+port, 3*time.Second)
 	if err != nil {
-		logger.Errorf("event_id=tcp_dial_failed msg\"%v\"", err)
-		return er
+		return fmt.Errorf("event_id=tcp_dial_failed msg=\"%v\"", err)
 	}
 	defer conn.Close()
 
@@ -39,52 +43,50 @@ func Heartbleed(host string, port string, tlsVers int) string {
 
 	err = ssl.StartTLS(conn, port)
 	if err != nil {
-		return er
+		return err
 	}
 
 	// Send clientHello
 	clientHello := makeClientHello(tlsVers)
 	err = tcputils.Write(conn, clientHello)
 	if err != nil {
-		logger.Errorf("event_id=heartbleed_clientHello_failed msg\"%v\"", err)
-		return er
+		return fmt.Errorf("event_id=heartbleed_clientHello_failed msg=\"%v\"", err)
 	}
 
 	connbuf := bufio.NewReader(conn)
 
-	hBEnabled, err := checkHandshake(connbuf)
+	hBEnabled, err := checkExtension(connbuf)
 	if err != nil {
 		switch err.Error() {
 		// some applications reset the tcp connection
 		// when probing for heartbleed
 		case "EOF":
-			return safe
+			h.Status = safe
 		default:
-			logger.Errorf("event_id=heartbleed_handshake_failed msg=\"%v\"", err)
-			return er
+			return fmt.Errorf("event_id=heartbleed_handshake_failed msg=\"%v\"", err)
 		}
 	}
 
 	if !hBEnabled {
-		return na
+		h.Status = na
+	} else {
+		h.ExtensionEnabled = true
+
+		payload := makePayload(tlsVers)
+		err = tcputils.Write(conn, payload)
+		if err != nil {
+			return fmt.Errorf("event_id=heartbleed_payload_failed msg=\"%v\"", err)
+		}
+
+		h.Status = heartbeatListen(connbuf)
 	}
-
-	payload := makePayload(tlsVers)
-	err = tcputils.Write(conn, payload)
-	if err != nil {
-		logger.Errorf("event_id=heartbleed_payload_failed msg=\"%v\"", err)
-		return er
-	}
-
-	vuln := heartbeatListen(connbuf)
-
-	return vuln
+	return nil
 
 }
 
 // checks if handshake was successful and if the
 // heartbeat extension is enabled
-func checkHandshake(buff *bufio.Reader) (bool, error) {
+func checkExtension(buff *bufio.Reader) (bool, error) {
 	var data []byte
 	var err error
 
@@ -140,7 +142,7 @@ func heartbeatListen(buff *bufio.Reader) string {
 		b, err := buff.ReadByte()
 		data = append(data, b)
 		if err != nil {
-			logger.Debugf("event_id=heartbleed_error msg=%v", err)
+			// logger.Debugf("event_id=heartbleed_error msg=%v", err)
 			break
 		}
 
