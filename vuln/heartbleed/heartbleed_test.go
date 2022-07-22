@@ -24,16 +24,19 @@ func TestBleedNotEnabled(t *testing.T) {
 	s := strings.Replace(server.URL, "https://", "", -1)
 	host, port, _ := net.SplitHostPort(s)
 
-	status := Heartbleed(host, port, 771)
+	var r Heartbleed
 
-	if status != "n/a" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "n/a")
+	r.Check(host, port, 771)
+
+	if r.Status != "n/a" {
+		t.Errorf("Wrong return, got: %s, want: %s.", r.Status, "n/a")
 	}
 
-	statusTLS13 := Heartbleed(host, port, 772)
+	var rTLS13 Heartbleed
+	rTLS13.Check(host, port, 772)
 
-	if statusTLS13 != "n/a" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "n/a")
+	if rTLS13.Status != "n/a" {
+		t.Errorf("Wrong return, got: %s, want: %s.", rTLS13.Status, "n/a")
 	}
 }
 
@@ -48,9 +51,10 @@ func TestBleedNotEnabled(t *testing.T) {
 // }
 
 func TestBleedTimeout(t *testing.T) {
-	status := Heartbleed("127.0.0.1", "4242", 771)
+	var r Heartbleed
+	r.Check("127.0.0.1", "4242", 771)
 
-	if status != "error" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "error")
+	if r.Status != "error" {
+		t.Errorf("Wrong return, got: %s, want: %s.", r.Status, "error")
 	}
 }
