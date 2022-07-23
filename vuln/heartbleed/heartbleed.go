@@ -22,7 +22,8 @@ type Heartbleed struct {
 func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 	conn, err := net.DialTimeout("tcp", host+":"+port, 3*time.Second)
 	if err != nil {
-		return fmt.Errorf("event_id=tcp_dial_failed msg=\"%v\"", err)
+		logger.Debugf("event_id=tcp_dial_failed msg=\"%v\"", err)
+		return err
 	}
 	defer conn.Close()
 
@@ -43,7 +44,8 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 	clientHello := makeClientHello(tlsVers)
 	err = tcputils.Write(conn, clientHello)
 	if err != nil {
-		return fmt.Errorf("event_id=heartbleed_clientHello_failed msg=\"%v\"", err)
+		logger.Debugf("event_id=heartbleed_clientHello_failed msg=\"%v\"", err)
+		return err
 	}
 
 	connbuf := bufio.NewReader(conn)
@@ -55,7 +57,8 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 		// when probing for heartbleed
 		case "EOF":
 		default:
-			return fmt.Errorf("event_id=heartbleed_handshake_failed msg=\"%v\"", err)
+			logger.Debugf("event_id=heartbleed_handshake_failed msg=\"%v\"", err)
+			return err
 		}
 	}
 
@@ -65,7 +68,8 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 		payload := makePayload(tlsVers)
 		err = tcputils.Write(conn, payload)
 		if err != nil {
-			return fmt.Errorf("event_id=heartbleed_payload_failed msg=\"%v\"", err)
+			logger.Debugf("event_id=heartbleed_payload_failed msg=\"%v\"", err)
+			return err
 		}
 
 		h.Vulnerable = heartbeatListen(connbuf)
