@@ -13,8 +13,9 @@ import (
 	"github.com/jsandas/tlstools/ssl/status"
 	"github.com/jsandas/tlstools/utils"
 	"github.com/jsandas/tlstools/utils/tcputils"
-	"github.com/jsandas/tlstools/vuln"
+	"github.com/jsandas/tlstools/vuln/ccs"
 	"github.com/jsandas/tlstools/vuln/heartbleed"
+	"github.com/jsandas/tlstools/vuln/weakkey"
 )
 
 // ConnectionData information about tls connection
@@ -37,9 +38,9 @@ type Results struct {
 
 // Vulnerabilities struct of vuln results
 type Vulnerabilities struct {
-	DebianWeakKey bool                  `json:"debianWeakKey"`
+	DebianWeakKey weakkey.DebianWeakKey `json:"debianWeakKey"`
 	Heartbleed    heartbleed.Heartbleed `json:"heartbleed"`
-	CCSInjection  string                `json:"ccsinjection"`
+	CCSInjection  ccs.CCSInjection      `json:"ccsinjection"`
 }
 
 func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertData {
@@ -111,13 +112,13 @@ func (r *Results) Scan(host string, port string) {
 
 	r.Vulnerabilities.Heartbleed.Check(host, port, tlsVers)
 
-	r.Vulnerabilities.CCSInjection = vuln.CCSInjection(host, port)
+	r.Vulnerabilities.CCSInjection.Check(host, port)
 
 	if certs[0].PublicKeyAlgorithm.String() == "RSA" {
 		pubKey := certs[0].PublicKey.(*rsa.PublicKey)
 		keySize := pubKey.Size() * 8
 		modulus := fmt.Sprintf("%x", pubKey.N)
-		r.Vulnerabilities.DebianWeakKey = vuln.DebianWeakKey(keySize, modulus)
+		r.Vulnerabilities.DebianWeakKey.Check(keySize, modulus)
 	}
 
 	WG.Wait()
