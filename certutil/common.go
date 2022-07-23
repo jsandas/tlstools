@@ -18,7 +18,7 @@ func getKeyType(pk interface{}, pka x509.PublicKeyAlgorithm) string {
 	}
 	if pka.String() == "ECDSA" {
 		pubKey := pk.(*ecdsa.PublicKey)
-		keySize = pubKey.X.BitLen()
+		keySize = pubKey.Params().BitSize
 	}
 
 	k = fmt.Sprintf("%s-%s", pka.String(), strconv.Itoa(keySize))
