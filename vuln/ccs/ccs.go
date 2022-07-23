@@ -12,16 +12,12 @@ import (
 	"github.com/jsandas/tlstools/logger"
 )
 
-const (
-	vulnerable = "yes"
-	safe       = "no"
-	er         = "error"
-)
+type CCSInjection struct {
+	vulnerable bool
+}
 
 // change cipher suite injections
-func Check(host string, port string) string {
-	vuln := safe
-
+func (ccs *CCSInjection) Check(host string, port string) error {
 	// spath is the location of weakkeys binaries
 	// these are copied there during the docker build
 	p, _ := os.Executable()
@@ -50,21 +46,21 @@ func Check(host string, port string) string {
 		nmap.WithContext(ctx),
 	)
 	if err != nil {
-		logger.Errorf("event_id=ccs_test_failed msg=%v", err)
-		return er
+		logger.Debugf("event_id=ccs_test_failed msg=%v", err)
+		return err
 	}
 
 	result, _, err := scanner.Run()
 	if err != nil {
-		logger.Errorf("event_id=ccs_test_failed msg=%v", err)
-		return er
+		logger.Debugf("event_id=ccs_test_failed msg=%v", err)
+		return err
 	}
 
 	count := len(result.Hosts[0].Ports[0].Scripts)
 
 	if count == 0 {
-		logger.Debugf("event_id=ccs_test status=%s", safe)
-		return safe
+		logger.Debugf("event_id=ccs_test status=%s", false)
+		return nil
 	}
 
 	logger.Debugf("event_id=ccs_test_output output=%+v", result.Hosts[0].Ports[0].Scripts)
@@ -73,11 +69,11 @@ func Check(host string, port string) string {
 	output := result.Hosts[0].Ports[0].Scripts[0].Output
 
 	if strings.Contains(output, "VULNERABLE") {
-		vuln = vulnerable
-		logger.Debugf("event_id=ccs_test status=%s", vuln)
+		ccs.vulnerable = true
+		logger.Debugf("event_id=ccs_test vulnerable=%v", true)
 	} else {
-		logger.Debugf("event_id=ccs_test status=%s", safe)
+		logger.Debugf("event_id=ccs_test vulnerable=%v", false)
 	}
 
-	return vuln
+	return nil
 }

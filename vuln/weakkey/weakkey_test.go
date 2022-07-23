@@ -72,6 +72,7 @@ d7+0ksvbDUmlMMZRIppmHit25taSAGPxmprKhIs2U/39qbfsrXwp4Q==
 -----END CERTIFICATE-----`
 
 func TestWeakKeyBad1024(t *testing.T) {
+	var r DebianWeakKey
 
 	block, _ := pem.Decode([]byte(weak1024))
 	if block == nil {
@@ -85,15 +86,16 @@ func TestWeakKeyBad1024(t *testing.T) {
 	pk := crt.PublicKey.(*rsa.PublicKey)
 	ks := pk.Size() * 8
 	mod := fmt.Sprintf("%x", pk.N)
-	res := WeakKey(ks, mod)
+	r.Check(ks, mod)
 
-	if !res {
-		t.Errorf("Did not detect weak key, got: %v, want: %v.", res, true)
+	if r.Vulnerable != true {
+		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, true)
 	}
 
 }
 
 func TestWeakKeyBad2048(t *testing.T) {
+	var r DebianWeakKey
 
 	block, _ := pem.Decode([]byte(weak2048))
 	if block == nil {
@@ -107,15 +109,16 @@ func TestWeakKeyBad2048(t *testing.T) {
 	pk := crt.PublicKey.(*rsa.PublicKey)
 	ks := pk.Size() * 8
 	mod := fmt.Sprintf("%x", pk.N)
-	res := WeakKey(ks, mod)
+	r.Check(ks, mod)
 
-	if !res {
-		t.Errorf("Did not detect weak key, got: %v, want: %v.", res, true)
+	if r.Vulnerable != true {
+		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, true)
 	}
 
 }
 
 func TestWeakKeyGood2048(t *testing.T) {
+	var r DebianWeakKey
 
 	block, _ := pem.Decode([]byte(good2048))
 	if block == nil {
@@ -129,10 +132,10 @@ func TestWeakKeyGood2048(t *testing.T) {
 	pk := crt.PublicKey.(*rsa.PublicKey)
 	ks := pk.Size() * 8
 	mod := fmt.Sprintf("%x", pk.N)
-	res := WeakKey(ks, mod)
+	r.Check(ks, mod)
 
-	if res {
-		t.Errorf("Detect weak key, got: %v, want: %v.", res, false)
+	if r.Vulnerable {
+		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, false)
 	}
 
 }
