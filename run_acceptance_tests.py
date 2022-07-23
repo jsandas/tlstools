@@ -184,8 +184,8 @@ def test_csr():
     data = json.loads(res)
 
     key_type = data['keyType'] or ""
-    if key_type != "ECDSA-253":
-        print("wrong key type, got {}, wanted {}".format(key_type, "ECDSA-253"))
+    if key_type != "ECDSA-256":
+        print("wrong key type, got {}, wanted {}".format(key_type, "ECDSA-256"))
         error()
     else:
         success()
