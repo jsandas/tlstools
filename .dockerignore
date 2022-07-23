@@ -1,8 +1,8 @@
 .github
 chart
-test_setup
+test_setup/ca-*
+test_setup/*.key
 acceptance.yaml
 docker-compose.yaml
 README.md
-run_*
 tlstools
