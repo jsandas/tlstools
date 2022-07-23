@@ -23,8 +23,12 @@ import (
 	value of bpath
 */
 
+type DebianWeakKey struct {
+	Vulnerable bool `json:"vulnerable"`
+}
+
 // WeakKey detects if key was generated with weak Debian openssl
-func WeakKey(keysize int, modulus string) bool {
+func (w *DebianWeakKey) Check(keysize int, modulus string) error {
 
 	// bpath is the location of weakkeys binaries
 	// these are copied there during the docker build
@@ -57,6 +61,7 @@ func WeakKey(keysize int, modulus string) bool {
 	b, err := ioutil.ReadFile(bpath + "/weak_keysize_" + ks)
 	if err != nil {
 		logger.Errorf("event_id=file_read_error msg\"%v\"", err)
+		return err
 	}
 
 	// the hashes in the weak_key files are offset by 20 bytes
@@ -64,9 +69,9 @@ func WeakKey(keysize int, modulus string) bool {
 		bs := hex.EncodeToString(b[i : i+20])
 		if sh == bs {
 			logger.Warnf("event_id=weak_key_found %s %d:%d\n", bs, i, i+20)
-			return true
+			w.Vulnerable = true
 		}
 	}
 
-	return false
+	return nil
 }

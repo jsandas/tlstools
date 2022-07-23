@@ -26,7 +26,9 @@ test_cases = {
             "vulnerable": False,
             "extension": False
         },
-        "exp_ccsinjection": "no"
+        "exp_ccsinjection": {
+            "vulnerable": False
+        }
     },
     "nginx_bad": {
         "exp_key_type": "RSA-2048",
@@ -36,7 +38,9 @@ test_cases = {
             "vulnerable": True,
             "extension": True
         },
-        "exp_ccsinjection": "yes"
+        "exp_ccsinjection": {
+            "vulnerable": True
+        }
     },
     "postfix_bad:25": {
         "exp_key_type": "RSA-2048",
@@ -46,7 +50,9 @@ test_cases = {
             "vulnerable": False,
             "extension": True
         },
-        "exp_ccsinjection": "no"
+        "exp_ccsinjection": {
+            "vulnerable": False
+        }
     },
     "postfix_bad:587": {
         "exp_key_type": "RSA-2048",
@@ -56,7 +62,9 @@ test_cases = {
             "vulnerable": False,
             "extension": True
         },
-        "exp_ccsinjection": "no"
+        "exp_ccsinjection": {
+            "vulnerable": False
+        }
     },
 }
 
