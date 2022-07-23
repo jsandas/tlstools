@@ -14,7 +14,7 @@ import (
 )
 
 type Heartbleed struct {
-	Vulnerable       bool `json:"status"`
+	Vulnerable       bool `json:"vulnerable"`
 	ExtensionEnabled bool `json:"extension"`
 }
 
