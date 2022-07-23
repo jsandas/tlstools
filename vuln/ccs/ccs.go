@@ -13,7 +13,7 @@ import (
 )
 
 type CCSInjection struct {
-	vulnerable bool
+	Vulnerable bool `json:"vulnerable"`
 }
 
 // change cipher suite injections
@@ -69,7 +69,7 @@ func (ccs *CCSInjection) Check(host string, port string) error {
 	output := result.Hosts[0].Ports[0].Scripts[0].Output
 
 	if strings.Contains(output, "VULNERABLE") {
-		ccs.vulnerable = true
+		ccs.Vulnerable = true
 		logger.Debugf("event_id=ccs_test vulnerable=%v", true)
 	} else {
 		logger.Debugf("event_id=ccs_test vulnerable=%v", false)
