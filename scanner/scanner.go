@@ -14,6 +14,7 @@ import (
 	"github.com/jsandas/tlstools/utils"
 	"github.com/jsandas/tlstools/utils/tcputils"
 	"github.com/jsandas/tlstools/vuln"
+	"github.com/jsandas/tlstools/vuln/heartbleed"
 )
 
 // ConnectionData information about tls connection
@@ -36,9 +37,9 @@ type Results struct {
 
 // Vulnerabilities struct of vuln results
 type Vulnerabilities struct {
-	DebianWeakKey bool   `json:"debianWeakKey"`
-	Heartbleed    string `json:"heartbleed"`
-	CCSInjection  string `json:"ccsinjection"`
+	DebianWeakKey bool                  `json:"debianWeakKey"`
+	Heartbleed    heartbleed.Heartbleed `json:"heartbleed"`
+	CCSInjection  string                `json:"ccsinjection"`
 }
 
 func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertData {
@@ -108,7 +109,7 @@ func (r *Results) Scan(host string, port string) {
 		WG.Done()
 	}()
 
-	r.Vulnerabilities.Heartbleed = vuln.Heartbleed(host, port, tlsVers)
+	r.Vulnerabilities.Heartbleed.Check(host, port, tlsVers)
 
 	r.Vulnerabilities.CCSInjection = vuln.CCSInjection(host, port)
 
