@@ -24,7 +24,7 @@ import (
 */
 
 type DebianWeakKey struct {
-	Vulnerable bool
+	Vulnerable bool `json:"vulnerable"`
 }
 
 // WeakKey detects if key was generated with weak Debian openssl
