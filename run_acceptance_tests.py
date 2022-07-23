@@ -219,7 +219,7 @@ def test_csr():
 
 def main():
     print(" Starting environment...")
-    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "pull", "--ignore-pull-failures"])
+    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "pull", "--quiet", "--ignore-pull-failures"])
     subprocess.call(["docker-compose", "-f", "acceptance.yaml", "up", "-d", "--build"])
 
     # sleep for containers to come up
