@@ -1,6 +1,6 @@
 [![unit](https://github.com/jsandas/tlstools/actions/workflows/unit.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/unit.yaml)
-[![acceptance](https://github.com/jsandas/tlstools/actions/workflows/acceptance.yml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/acceptance.yml)
-[![main](https://github.com/jsandas/tlstools/actions/workflows/main.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/main.yaml)
+[![acceptance](https://github.com/jsandas/tlstools/actions/workflows/acceptance.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/acceptance.yaml)
+[![main](https://github.com/jsandas/tlstools/actions/workflows/release.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/release.yaml)
 
 tlstools is an api for testing ssl related things
 
