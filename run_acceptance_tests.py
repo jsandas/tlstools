@@ -22,28 +22,40 @@ test_cases = {
         "exp_key_type": "ECDSA-384",
         "exp_server": "nginx/1.23.0",
         "exp_config_len": 2,
-        "exp_hbleed": "n/a",
+        "exp_hbleed": {
+            "vulnerable": False,
+            "extension": False
+        },
         "exp_ccsinjection": "no"
     },
     "nginx_bad": {
         "exp_key_type": "RSA-2048",
         "exp_server": "nginx/1.2.9",
         "exp_config_len": 5,
-        "exp_hbleed": "yes",
+        "exp_hbleed": {
+            "vulnerable": True,
+            "extension": True
+        },
         "exp_ccsinjection": "yes"
     },
     "postfix_bad:25": {
         "exp_key_type": "RSA-2048",
         "exp_server": "220 mail.example.com ESMTP Postfix (Ubuntu)",
         "exp_config_len": 4,
-        "exp_hbleed": "no",
+        "exp_hbleed": {
+            "vulnerable": False,
+            "extension": True
+        },
         "exp_ccsinjection": "no"
     },
     "postfix_bad:587": {
         "exp_key_type": "RSA-2048",
         "exp_server": "220 mail.example.com ESMTP Postfix (Ubuntu)",
         "exp_config_len": 4,
-        "exp_hbleed": "no",
+        "exp_hbleed": {
+            "vulnerable": False,
+            "extension": True
+        },
         "exp_ccsinjection": "no"
     },
 }

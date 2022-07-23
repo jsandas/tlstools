@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestBleedNotEnabled(t *testing.T) {
+func TestHeartbleedExtensionDisabled(t *testing.T) {
 	// Start a local HTTPS server
 	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
@@ -24,33 +24,27 @@ func TestBleedNotEnabled(t *testing.T) {
 	s := strings.Replace(server.URL, "https://", "", -1)
 	host, port, _ := net.SplitHostPort(s)
 
-	status := Heartbleed(host, port, 771)
+	var r Heartbleed
 
-	if status != "n/a" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "n/a")
+	r.Check(host, port, 771)
+
+	if r.Vulnerable || r.ExtensionEnabled {
+		t.Errorf("Wrong return, got: %v/%v, want: %s.", r.Vulnerable, r.ExtensionEnabled, "false/false")
 	}
 
-	statusTLS13 := Heartbleed(host, port, 772)
+	var rTLS13 Heartbleed
+	rTLS13.Check(host, port, 772)
 
-	if statusTLS13 != "n/a" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "n/a")
+	if rTLS13.Vulnerable || rTLS13.ExtensionEnabled {
+		t.Errorf("Wrong return, got: %v/%v, want: %s.", rTLS13.Vulnerable, rTLS13.ExtensionEnabled, "false/false")
 	}
 }
 
-// disabled check because I cannot find a server with the heartbeat
-// extension enabled
-// func TestBleedSafe(t *testing.T) {
-// 	status := Heartbleed("seal.digicert.com", "443", 771)
+func TestHeartBleedConnectFail(t *testing.T) {
+	var r Heartbleed
+	err := r.Check("127.0.0.1", "4242", 771)
 
-// 	if status != "no" {
-// 		t.Errorf("Wrong return, got: %s, want: %s.", status, "no")
-// 	}
-// }
-
-func TestBleedTimeout(t *testing.T) {
-	status := Heartbleed("127.0.0.1", "4242", 771)
-
-	if status != "error" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "error")
+	if err == nil {
+		t.Errorf("Wrong return, got: %s, want: error message", err)
 	}
 }
