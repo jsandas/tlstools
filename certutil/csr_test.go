@@ -45,8 +45,8 @@ func TestParseECDSACSR(t *testing.T) {
 		t.Errorf("Certificate incorrect common name, got: %s, want: %s.", c.Subject.CountryName, "AU")
 	}
 
-	if c.KeyType != "ECDSA-253" {
-		t.Errorf("Certificate incorrect key size, got: %s, want: %s.", c.KeyType, "RSA-2048")
+	if c.KeyType != "ECDSA-256" {
+		t.Errorf("Certificate incorrect key size, got: %s, want: %s.", c.KeyType, "ECDSA-256")
 	}
 
 	if c.Version != 0 {
