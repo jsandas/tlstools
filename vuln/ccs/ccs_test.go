@@ -24,19 +24,11 @@ func TestCheck(t *testing.T) {
 	s := strings.Replace(server.URL, "https://", "", -1)
 	host, port, _ := net.SplitHostPort(s)
 
-	status := Check(host, port)
+	var r CCSInjection
 
-	if status != "no" {
-		t.Errorf("Wrong return, got: %s, want: %s.", status, "no")
+	r.Check(host, port)
+
+	if r.vulnerable {
+		t.Errorf("Wrong return, got: %v, want: %v.", r.vulnerable, false)
 	}
 }
-
-// disabled check because I cannot find a server with the heartbeat
-// extension enabled
-// func TestBleedSafe(t *testing.T) {
-// 	status := Heartbleed("seal.digicert.com", "443", 771)
-
-// 	if status != "no" {
-// 		t.Errorf("Wrong return, got: %s, want: %s.", status, "no")
-// 	}
-// }
