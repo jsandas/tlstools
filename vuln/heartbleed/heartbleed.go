@@ -13,16 +13,9 @@ import (
 	"github.com/jsandas/tlstools/utils/tcputils"
 )
 
-const (
-	vulnerable = "yes"
-	safe       = "no"
-	na         = "n/a"
-	er         = "error"
-)
-
 type Heartbleed struct {
-	Status           string `json:"status"`
-	ExtensionEnabled bool   `json:"extension"`
+	Vulnerable       bool `json:"status"`
+	ExtensionEnabled bool `json:"extension"`
 }
 
 // Heartbleed test
@@ -61,15 +54,12 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 		// some applications reset the tcp connection
 		// when probing for heartbleed
 		case "EOF":
-			h.Status = safe
 		default:
 			return fmt.Errorf("event_id=heartbleed_handshake_failed msg=\"%v\"", err)
 		}
 	}
 
-	if !hBEnabled {
-		h.Status = na
-	} else {
+	if hBEnabled {
 		h.ExtensionEnabled = true
 
 		payload := makePayload(tlsVers)
@@ -78,8 +68,9 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 			return fmt.Errorf("event_id=heartbleed_payload_failed msg=\"%v\"", err)
 		}
 
-		h.Status = heartbeatListen(connbuf)
+		h.Vulnerable = heartbeatListen(connbuf)
 	}
+
 	return nil
 
 }
@@ -114,7 +105,7 @@ func checkExtension(buff *bufio.Reader) (bool, error) {
 
 // reads from buffer and checks the size of the response
 // to determine if heartbleed was exploited
-func heartbeatListen(buff *bufio.Reader) string {
+func heartbeatListen(buff *bufio.Reader) bool {
 	// listen for reply
 	// ReadBytes has to be ran one to process started, but
 	// it will block if there isn't any data to read
@@ -147,12 +138,12 @@ func heartbeatListen(buff *bufio.Reader) string {
 		}
 
 		if len(data) >= 1600 {
-			logger.Debugf("event_id=heartbleed_check status=%s", vulnerable)
-			return vulnerable
+			logger.Debugf("event_id=heartbleed_check status=%s", true)
+			return true
 		}
 
 		i++
 	}
 
-	return safe
+	return false
 }
