@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/jsandas/tlstools/logger"
+	logger "github.com/jsandas/gologger"
 	"github.com/jsandas/tlstools/scanner"
 	"github.com/jsandas/tlstools/utils"
 )

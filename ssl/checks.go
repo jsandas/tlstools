@@ -3,7 +3,7 @@ package ssl
 import (
 	"sync"
 
-	"github.com/jsandas/tlstools/logger"
+	logger "github.com/jsandas/gologger"
 )
 
 // Check performs tls handshakes to find support

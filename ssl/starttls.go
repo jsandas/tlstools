@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jsandas/tlstools/logger"
+	logger "github.com/jsandas/gologger"
 	"github.com/jsandas/tlstools/utils"
 )
 
