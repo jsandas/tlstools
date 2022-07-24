@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/jsandas/tlstools/logger"
+	logger "github.com/jsandas/gologger"
 	"github.com/jsandas/tlstools/utils"
 	"github.com/jsandas/tlstools/utils/tcputils"
 )

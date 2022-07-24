@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jsandas/tlstools/logger"
+	logger "github.com/jsandas/gologger"
 )
 
 // CanConnect used to confirm host is reachable via tcp

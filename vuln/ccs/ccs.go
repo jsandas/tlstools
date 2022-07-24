@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/Ullaakut/nmap/v2"
-	"github.com/jsandas/tlstools/logger"
+	logger "github.com/jsandas/gologger"
 )
 
 type CCSInjection struct {
