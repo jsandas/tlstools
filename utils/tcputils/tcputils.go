@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jsandas/tlstools/logger"
+	logger "github.com/jsandas/gologger"
 )
 
 // Read data to network conn

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
+	logger "github.com/jsandas/gologger"
 	"github.com/jsandas/tlstools/certutil"
-	"github.com/jsandas/tlstools/logger"
 	"github.com/jsandas/tlstools/ssl"
 	"github.com/jsandas/tlstools/ssl/status"
 	"github.com/jsandas/tlstools/utils"
