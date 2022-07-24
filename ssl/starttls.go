@@ -20,43 +20,40 @@ type startTLSmsg struct {
 var msg = map[string]startTLSmsg{
 	"ftp": {
 		greet: "^220 ",
-		req:   "AUTH TLS",
+		req:   "AUTH TLS\r\n",
 		resp:  "^234 ",
 	},
 	"pop3": {
 		greet: "^\\+OK ",
-		req:   "STLS",
+		req:   "STLS\r\n",
 		resp:  "^\\+OK ",
 	},
 	"imap": {
 		greet: "^\\* ",
-		req:   "a001 STARTTLS",
+		req:   "a001 STARTTLS\r\n",
 		resp:  "^a001 OK ",
 	},
 	"smtp": {
 		greet: "^220 ",
-		req:   "STARTTLS",
+		req:   "STARTTLS\r\n",
 		resp:  "^220 ",
 	},
 }
 
 func ehlo(w *bufio.Writer, r *bufio.Reader) (err error) {
-	var ehloStr = "ehlo TLSscanner"
+	var ehloStr = "ehlo TLSscanner\r\n"
 	var res = "^250"
 	var line string
 
-	if _, err = w.WriteString(ehloStr + "\r\n"); err != nil {
+	if _, err = w.WriteString(ehloStr); err != nil {
 		return
 	}
-	if err = w.Flush(); err != nil {
-		return
-	}
+	w.Flush()
 
 	for {
 		if line, err = r.ReadString('\n'); err != nil {
 			return
 		}
-		line = strings.TrimRight(line, "\r")
 
 		rgx := regexp.MustCompile(res)
 		if !rgx.MatchString(line) {
@@ -82,8 +79,6 @@ func run(w *bufio.Writer, r *bufio.Reader, proto string) (err error) {
 			return
 		}
 
-		line = strings.TrimRight(line, "\r")
-
 		if rgx.MatchString(line) {
 			break
 		}
@@ -94,20 +89,16 @@ func run(w *bufio.Writer, r *bufio.Reader, proto string) (err error) {
 		return
 	}
 
-	if _, err = w.WriteString(msg[proto].req + "\r\n"); err != nil {
+	if _, err = w.WriteString(msg[proto].req); err != nil {
 		logger.Debugf("event_id=tcp_write_failed type=%s msg=\"%v\"", proto, err)
 		return
 	}
-	if err = w.Flush(); err != nil {
-		logger.Debugf("event_id=tcp_write_failed type=%s msg=\"%v\"", proto, err)
-		return
-	}
+	w.Flush()
 
 	if line, err = r.ReadString('\n'); err != nil {
 		logger.Debugf("event_id=tcp_read_failed type=%s msg=\"%v\"", proto, err)
 		return
 	}
-	line = strings.TrimRight(line, "\r")
 
 	rgx = regexp.MustCompile(msg[proto].resp)
 	if !rgx.MatchString(line) {
@@ -125,9 +116,12 @@ func StartTLS(conn net.Conn, port string) (err error) {
 
 	proto := utils.GetService(port)
 
-	if proto == "https" || proto == "rdp" || strings.HasSuffix(proto, "SSL") {
-		return
+	// "https", "imapSSL", "pop3SSL", "rdp", "smtpSSL" use regular TLS connections
+	// and are not processed further
+	switch proto {
+	case "ftp", "imap", "pop3", "smtp":
+		return run(w, r, proto)
 	}
 
-	return run(w, r, proto)
+	return
 }
