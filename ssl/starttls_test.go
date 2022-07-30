@@ -70,6 +70,12 @@ func TestSTARTTLS(t *testing.T) {
 			authMSG:  "AUTH TLS\r\n",
 			respMSG:  "234 ready\r\n",
 		},
+		"imap": {
+			port:     "143",
+			greetMSG: "* \r\n",
+			authMSG:  "a001 STARTTLS\r\n",
+			respMSG:  "a001 OK \r\n",
+		},
 		"smtp": {
 			port:     "25",
 			greetMSG: "220 test.test.test server\r\n250-STARTTLS\r\n",
