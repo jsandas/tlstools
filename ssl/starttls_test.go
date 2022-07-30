@@ -38,7 +38,7 @@ func testServer(msg testServerData) error {
 		time.Sleep(1 * time.Second)
 
 		// need to find a way to check client auth message that doesn't hang
-		time.Sleep(1 * time.Second)
+		// time.Sleep(1 * time.Second)
 		// rgx := regexp.MustCompile(msg.authMSG)
 		// for {
 		// 	var b []byte
