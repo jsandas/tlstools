@@ -53,7 +53,7 @@ func (s *startTLSmsg) connect(w *bufio.Writer, r *bufio.Reader) (err error) {
 	rgx := regexp.MustCompile(s.greetMSG)
 	for {
 		if line, err = r.ReadString('\n'); err != nil {
-			logger.Debugf("event_id=tcp_read_failed type=%s line=%s msg=\"%v\"", s.protocol, strings.TrimSpace(line), err)
+			logger.Debugf("event_id=greetMSG_read_failed type=%s line=%s msg=\"%v\"", s.protocol, strings.TrimSpace(line), err)
 			return
 		}
 
@@ -64,19 +64,19 @@ func (s *startTLSmsg) connect(w *bufio.Writer, r *bufio.Reader) (err error) {
 
 	if s.protocol == "smtp" {
 		if err = smtpEHLO(w, r); err != nil {
-			logger.Debugf("event_id=tcp_write_failed type=%s msg=\"%v\"", s.protocol, err)
+			logger.Debugf("event_id=ehlo_write_failed type=%s msg=\"%v\"", s.protocol, err)
 			return
 		}
 	}
 
 	if _, err = w.WriteString(s.authMSG); err != nil {
-		logger.Debugf("event_id=tcp_write_failed type=%s msg=\"%v\"", s.protocol, err)
+		logger.Debugf("event_id=authMSG_write_failed type=%s msg=\"%v\"", s.protocol, err)
 		return
 	}
 	w.Flush()
 
 	if line, err = r.ReadString('\n'); err != nil {
-		logger.Debugf("event_id=tcp_read_failed type=%s msg=\"%v\"", s.protocol, err)
+		logger.Debugf("event_id=respMSG_read_failed type=%s msg=\"%v\"", s.protocol, err)
 		return
 	}
 
