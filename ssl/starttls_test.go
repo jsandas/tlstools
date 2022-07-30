@@ -9,6 +9,7 @@ import (
 )
 
 type testServerData struct {
+	port     string
 	greetMSG string
 	authMSG  string
 	respMSG  string
@@ -16,9 +17,9 @@ type testServerData struct {
 
 // testServer is used to simulate responses from a server
 // for testing StartTLS functionality
-func testServer(port string, msg testServerData) error {
+func testServer(msg testServerData) error {
 	// Start the new server.
-	srv, err := net.Listen("tcp", ":"+port)
+	srv, err := net.Listen("tcp", ":"+msg.port)
 	if err != nil {
 		log.Println("error starting TCP server")
 		return err
@@ -56,52 +57,38 @@ func testServer(port string, msg testServerData) error {
 		return err
 	}
 
-	err = StartTLS(client, port)
+	err = StartTLS(client, msg.port)
 
 	return err
 }
 
-func TestStartTLSMTP(t *testing.T) {
-	// test server data
-	msg := testServerData{
-		greetMSG: "220 test.test.test server\r\n250-STARTTLS\r\n",
-		authMSG:  "STARTTLS\r\n",
-		respMSG:  "220 ready\r\n",
+func TestSTARTTLS(t *testing.T) {
+	tests := map[string]testServerData{
+		"ftp": {
+			port:     "21",
+			greetMSG: "220 test.test.test server\r\n",
+			authMSG:  "AUTH TLS\r\n",
+			respMSG:  "234 ready\r\n",
+		},
+		"smtp": {
+			port:     "25",
+			greetMSG: "220 test.test.test server\r\n250-STARTTLS\r\n",
+			authMSG:  "STARTTLS\r\n",
+			respMSG:  "220 ready\r\n",
+		},
+		"pop3": {
+			port:     "110",
+			greetMSG: "+OK test data\r\n",
+			authMSG:  "STLS\r\n",
+			respMSG:  "+OK \r\n",
+		},
 	}
 
-	err := testServer("25", msg)
+	for test, data := range tests {
+		err := testServer(data)
 
-	if err != nil {
-		t.Errorf("Got an error, got: %v", err)
-	}
-}
-
-func TestStartTLSFTP(t *testing.T) {
-	// test server data
-	msg := testServerData{
-		greetMSG: "220 test.test.test server\r\n",
-		authMSG:  "AUTH TLS\r\n",
-		respMSG:  "234 ready\r\n",
-	}
-
-	err := testServer("21", msg)
-
-	if err != nil {
-		t.Errorf("Got an error, got: %v", err)
-	}
-}
-
-func TestStartTLSPOP3(t *testing.T) {
-	// test server data
-	msg := testServerData{
-		greetMSG: "+OK test data\r\n",
-		authMSG:  "STLS\r\n",
-		respMSG:  "+OK \r\n",
-	}
-
-	err := testServer("110", msg)
-
-	if err != nil {
-		t.Errorf("Got an error, got: %v", err)
+		if err != nil {
+			t.Errorf("Got an error, test: %s got: %v", test, err)
+		}
 	}
 }
