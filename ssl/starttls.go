@@ -100,37 +100,37 @@ func StartTLS(conn net.Conn, port string) (err error) {
 	// and are not processed further
 	switch proto {
 	case "ftp":
-		proto := startTLSmsg{
-			protocol: "ftp",
+		msg := startTLSmsg{
+			protocol: proto,
 			greetMSG: "^220 ",
 			authMSG:  "AUTH TLS\r\n",
 			respMSG:  "^234 ",
 		}
-		err = proto.connect(w, r)
+		err = msg.connect(w, r)
 	case "imap":
-		proto := startTLSmsg{
-			protocol: "imap",
+		msg := startTLSmsg{
+			protocol: proto,
 			greetMSG: "^\\* ",
 			authMSG:  "a001 STARTTLS\r\n",
 			respMSG:  "^a001 OK ",
 		}
-		err = proto.connect(w, r)
+		err = msg.connect(w, r)
 	case "pop3":
-		proto := startTLSmsg{
-			protocol: "pop3",
+		msg := startTLSmsg{
+			protocol: proto,
 			greetMSG: "^\\+OK ",
 			authMSG:  "STLS\r\n",
 			respMSG:  "^\\+OK ",
 		}
-		err = proto.connect(w, r)
+		err = msg.connect(w, r)
 	case "smtp":
-		proto := startTLSmsg{
-			protocol: "smtp",
+		msg := startTLSmsg{
+			protocol: proto,
 			greetMSG: "^220 ",
 			authMSG:  "STARTTLS\r\n",
 			respMSG:  "^220 ",
 		}
-		err = proto.connect(w, r)
+		err = msg.connect(w, r)
 	}
 
 	return
