@@ -5,7 +5,7 @@
 
 # run unit tests
 if [[ $1 == *"cov"* ]]; then
-    go test ./... -coverprofile=coverage.out -covermode=atomic
+    go test -count=1 ./... -coverprofile=coverage.out -covermode=atomic
 else
-    go test ./...
+    go test -count=1 ./...
 fi

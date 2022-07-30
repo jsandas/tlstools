@@ -12,51 +12,26 @@ import (
 )
 
 type startTLSmsg struct {
-	greet string
-	req   string
-	resp  string
+	protocol string
+	greetMSG string
+	authMSG  string
+	respMSG  string
 }
 
-var msg = map[string]startTLSmsg{
-	"ftp": {
-		greet: "^220 ",
-		req:   "AUTH TLS",
-		resp:  "^234 ",
-	},
-	"pop3": {
-		greet: "^\\+OK ",
-		req:   "STLS",
-		resp:  "^\\+OK ",
-	},
-	"imap": {
-		greet: "^\\* ",
-		req:   "a001 STARTTLS",
-		resp:  "^a001 OK ",
-	},
-	"smtp": {
-		greet: "^220 ",
-		req:   "STARTTLS",
-		resp:  "^220 ",
-	},
-}
-
-func ehlo(w *bufio.Writer, r *bufio.Reader) (err error) {
-	var ehloStr = "ehlo TLSscanner"
+func smtpEHLO(w *bufio.Writer, r *bufio.Reader) (err error) {
+	var ehloStr = "ehlo tlstools.com\r\n"
 	var res = "^250"
 	var line string
 
-	if _, err = w.WriteString(ehloStr + "\r\n"); err != nil {
+	if _, err = w.WriteString(ehloStr); err != nil {
 		return
 	}
-	if err = w.Flush(); err != nil {
-		return
-	}
+	w.Flush()
 
 	for {
 		if line, err = r.ReadString('\n'); err != nil {
 			return
 		}
-		line = strings.TrimRight(line, "\r")
 
 		rgx := regexp.MustCompile(res)
 		if !rgx.MatchString(line) {
@@ -72,46 +47,42 @@ func ehlo(w *bufio.Writer, r *bufio.Reader) (err error) {
 	return
 }
 
-func run(w *bufio.Writer, r *bufio.Reader, proto string) (err error) {
+func (s *startTLSmsg) connect(w *bufio.Writer, r *bufio.Reader) (err error) {
 	var line string
 
-	rgx := regexp.MustCompile(msg[proto].greet)
+	rgx := regexp.MustCompile(s.greetMSG)
 	for {
 		if line, err = r.ReadString('\n'); err != nil {
-			logger.Debugf("event_id=tcp_read_failed type=%s line=%s msg=\"%v\"", proto, strings.TrimSpace(line), err)
+			logger.Debugf("event_id=greetMSG_read_failed type=%s line=%s msg=\"%v\"", s.protocol, strings.TrimSpace(line), err)
 			return
 		}
-
-		line = strings.TrimRight(line, "\r")
 
 		if rgx.MatchString(line) {
 			break
 		}
 	}
 
-	if err = ehlo(w, r); err != nil {
-		logger.Debugf("event_id=tcp_write_failed type=%s msg=\"%v\"", proto, err)
-		return
+	if s.protocol == "smtp" {
+		if err = smtpEHLO(w, r); err != nil {
+			logger.Debugf("event_id=ehlo_write_failed type=%s msg=\"%v\"", s.protocol, err)
+			return
+		}
 	}
 
-	if _, err = w.WriteString(msg[proto].req + "\r\n"); err != nil {
-		logger.Debugf("event_id=tcp_write_failed type=%s msg=\"%v\"", proto, err)
+	if _, err = w.WriteString(s.authMSG); err != nil {
+		logger.Debugf("event_id=authMSG_write_failed type=%s msg=\"%v\"", s.protocol, err)
 		return
 	}
-	if err = w.Flush(); err != nil {
-		logger.Debugf("event_id=tcp_write_failed type=%s msg=\"%v\"", proto, err)
-		return
-	}
+	w.Flush()
 
 	if line, err = r.ReadString('\n'); err != nil {
-		logger.Debugf("event_id=tcp_read_failed type=%s msg=\"%v\"", proto, err)
+		logger.Debugf("event_id=respMSG_read_failed type=%s msg=\"%v\"", s.protocol, err)
 		return
 	}
-	line = strings.TrimRight(line, "\r")
 
-	rgx = regexp.MustCompile(msg[proto].resp)
+	rgx = regexp.MustCompile(s.respMSG)
 	if !rgx.MatchString(line) {
-		logger.Debugf("event_id=starttls_not_supported server=%s line=%s msg=\"%v\"", proto, strings.TrimSpace(line), err)
+		logger.Debugf("event_id=starttls_not_supported server=%s line=%s msg=\"%v\"", s.protocol, strings.TrimSpace(line), err)
 		return errors.New("starttls_not_supported")
 	}
 
@@ -125,9 +96,42 @@ func StartTLS(conn net.Conn, port string) (err error) {
 
 	proto := utils.GetService(port)
 
-	if proto == "https" || proto == "rdp" || strings.HasSuffix(proto, "SSL") {
-		return
+	// "https", "imapSSL", "pop3SSL", "rdp", "smtpSSL" use regular TLS connections
+	// and are not processed further
+	switch proto {
+	case "ftp":
+		msg := startTLSmsg{
+			protocol: proto,
+			greetMSG: "^220 ",
+			authMSG:  "AUTH TLS\r\n",
+			respMSG:  "^234 ",
+		}
+		err = msg.connect(w, r)
+	case "imap":
+		msg := startTLSmsg{
+			protocol: proto,
+			greetMSG: "^\\* ",
+			authMSG:  "a001 STARTTLS\r\n",
+			respMSG:  "^a001 OK ",
+		}
+		err = msg.connect(w, r)
+	case "pop3":
+		msg := startTLSmsg{
+			protocol: proto,
+			greetMSG: "^\\+OK ",
+			authMSG:  "STLS\r\n",
+			respMSG:  "^\\+OK ",
+		}
+		err = msg.connect(w, r)
+	case "smtp":
+		msg := startTLSmsg{
+			protocol: proto,
+			greetMSG: "^220 ",
+			authMSG:  "STARTTLS\r\n",
+			respMSG:  "^220 ",
+		}
+		err = msg.connect(w, r)
 	}
 
-	return run(w, r, proto)
+	return
 }

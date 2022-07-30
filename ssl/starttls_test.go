@@ -1,31 +1,100 @@
 package ssl
 
-// func TestStartTLS(t *testing.T) {
-// 	var first = []byte("220 test.test.test server\r\n")
-// 	var second = []byte("220 2.0.0 Ready to start TLS\r\n")
+import (
+	"fmt"
+	"log"
+	"net"
+	"testing"
+	"time"
+)
 
-// 	server, client := net.Pipe()
+type testServerData struct {
+	port     string
+	greetMSG string
+	authMSG  string
+	respMSG  string
+}
 
-// 	go func() {
-// 		server.Write(first)
-// 		// b, err := ioutil.ReadAll(server)
-// 		// t.Errorf("got: %v %v", err, b)
-// 	}()
+// testServer is used to simulate responses from a server
+// for testing StartTLS functionality
+func testServer(msg testServerData) error {
+	// Start the new server.
+	srv, err := net.Listen("tcp", ":"+msg.port)
+	if err != nil {
+		log.Println("error starting TCP server")
+		return err
+	}
 
-// 	go func() {
-// 		server.Write(second)
-// 		time.Sleep(3 * time.Second)
-// 		server.Close()
-// 	}()
+	var srvConn net.Conn
 
-// 	r := bufio.NewReader(client)
-// 	w := bufio.NewWriter(client)
+	go func() {
+		srvConn, err = srv.Accept()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-// 	var err error
+		srvConn.Write([]byte(msg.greetMSG))
+		time.Sleep(1 * time.Second)
 
-// 	err = run(w, r, "smtp")
+		// need to find a way to check client auth message that doesn't hang
+		// time.Sleep(1 * time.Second)
+		// rgx := regexp.MustCompile(msg.authMSG)
+		// for {
+		// 	var b []byte
+		// 	srvConn.Read(b)
+		// 	if rgx.MatchString(string(b)) {
+		// 		break
+		// 	}
+		// }
 
-// 	if err != nil {
-// 		t.Errorf("Got an error, got: %v", err)
-// 	}
-// }
+		srvConn.Write([]byte(msg.respMSG))
+	}()
+
+	client, err := net.Dial("tcp", srv.Addr().String())
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	err = StartTLS(client, msg.port)
+
+	return err
+}
+
+func TestSTARTTLS(t *testing.T) {
+	tests := map[string]testServerData{
+		"ftp": {
+			port:     "21",
+			greetMSG: "220 test.test.test server\r\n",
+			authMSG:  "AUTH TLS\r\n",
+			respMSG:  "234 ready\r\n",
+		},
+		"imap": {
+			port:     "143",
+			greetMSG: "* \r\n",
+			authMSG:  "a001 STARTTLS\r\n",
+			respMSG:  "a001 OK \r\n",
+		},
+		"smtp": {
+			port:     "25",
+			greetMSG: "220 test.test.test server\r\n250-STARTTLS\r\n",
+			authMSG:  "STARTTLS\r\n",
+			respMSG:  "220 ready\r\n",
+		},
+		"pop3": {
+			port:     "110",
+			greetMSG: "+OK test data\r\n",
+			authMSG:  "STLS\r\n",
+			respMSG:  "+OK \r\n",
+		},
+	}
+
+	for test, data := range tests {
+		err := testServer(data)
+
+		if err != nil {
+			t.Errorf("Got an error, test: %s got: %v", test, err)
+		}
+	}
+}
