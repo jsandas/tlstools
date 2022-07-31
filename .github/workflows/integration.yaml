@@ -1,4 +1,4 @@
-name: acceptance test
+name: integration tests
 
 on:
   pull_request:
@@ -6,12 +6,12 @@ on:
       - master
 
 jobs:
-  acceptance_testing:
+  integration_testing:
     runs-on: ubuntu-latest
-    name: Acceptance
+    name: Integrations
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Run acceptance tests
-        run: ./run_acceptance_tests.py
+      - name: Run integration tests
+        run: make integration stop
