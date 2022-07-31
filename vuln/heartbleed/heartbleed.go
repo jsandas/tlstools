@@ -42,7 +42,7 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 
 	// Send clientHello
 	clientHello := makeClientHello(tlsVers)
-	err = tcputils.Write(conn, clientHello)
+	err = tcputils.Write(conn, clientHello, 2)
 	if err != nil {
 		logger.Debugf("event_id=heartbleed_clientHello_failed msg=\"%v\"", err)
 		return err
@@ -66,7 +66,7 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 		h.ExtensionEnabled = true
 
 		payload := makePayload(tlsVers)
-		err = tcputils.Write(conn, payload)
+		err = tcputils.Write(conn, payload, 2)
 		if err != nil {
 			logger.Debugf("event_id=heartbleed_payload_failed msg=\"%v\"", err)
 			return err
