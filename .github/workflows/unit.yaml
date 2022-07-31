@@ -10,11 +10,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build test image
-        run: docker build -t test --target=build .
-
       - name: Run unit tests
-        run: docker run -v $PWD:/go/src/tlstools test bash -c "./run_unit_tests.sh cov"
+        run: make unit_docker
 
       - uses: codecov/codecov-action@v3
         with:

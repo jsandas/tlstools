@@ -55,21 +55,31 @@ curl -X POST --data-binary @test.csr "http://localhost:8080/api/v1/parser/csr"
 ```
 
 
-The acceptance.yaml docker-compose file is intended to build and run containers for testing against different services.  
+The integrations.yaml docker-compose file is intended to build and run containers for testing against different services.  
 
-Currently insecure nginx and postfix containers are provided for acceptance testing
+Currently insecure nginx and postfix containers are provided for integration testing
 
-Build containers:
+Build container:
 ```
-docker-compose -f acceptance.yaml build
+make build
 ```
 
 Run containers:
 ```
-docker-compose -f acceptance.yaml up -d
+make run
 ```
 
-Run acceptance tests:
+Run unit tests:
 ```
-./run_acceptance_tests.py
+make unit
+```
+
+Run unit tests in docker:
+```
+make unit_docker
+```
+
+Run integration tests:
+```
+make integration stop
 ```
