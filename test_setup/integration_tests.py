@@ -226,12 +226,7 @@ def test_csr():
     
 
 def main():
-    print(" Starting environment...")
-    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "pull", "--quiet", "--ignore-pull-failures"])
-    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "up", "-d", "--build"])
-
-    # sleep for containers to come up
-    time.sleep(20)
+    print(" Starting integration tests...")
 
     for test, data in test_cases.items():
         scan_test(test, data)
@@ -240,8 +235,7 @@ def main():
 
     test_csr()
 
-    print(" Stopping environment...")
-    subprocess.call(["docker-compose", "-f", "acceptance.yaml", "down"], stdout=open(os.devnull, 'wb'))
+    print(" Integration tests complete")
 
     if ERRORS > 0:
         msg = "{} of {} tests failed".format(ERRORS, (ERRORS + SUCCESS))
