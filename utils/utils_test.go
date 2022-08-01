@@ -26,7 +26,15 @@ func TestCanConnect(t *testing.T) {
 	c := CanConnect(host, port)
 
 	if !c {
-		t.Errorf("can connect failed, got: %v, want: %v.", c, true)
+		t.Errorf("CanConnect failed, got: %v, want: %v.", c, true)
+	}
+}
+
+func TestCanConnectError(t *testing.T) {
+	c := CanConnect("localhost", "80")
+
+	if c {
+		t.Errorf("CanConnect succeeded, got: %v, want: %v.", c, true)
 	}
 }
 
