@@ -17,7 +17,7 @@ import (
 
 // CanConnect used to confirm host is reachable via tcp
 func CanConnect(host string, port string) bool {
-	conn, err := net.DialTimeout("tcp", host+":"+port, 10*time.Second)
+	conn, err := net.DialTimeout("tcp", host+":"+port, 5*time.Second)
 	if err != nil {
 		logger.Warnf("event_id=tcp_dial_failed msg=\"%v\"", err)
 		return false
