@@ -90,9 +90,9 @@ func (r *Results) Scan(host string, port string) {
 
 	// collect data about the connection in general
 	if service == "https" || strings.HasSuffix(service, "SSL") {
-		r.ConnectionInformation.ServerHeader = utils.GetHTTPHeader(host, port, "Server")
+		r.ConnectionInformation.ServerHeader, _ = utils.GetHTTPHeader(host, port, "Server")
 	} else {
-		r.ConnectionInformation.ServerHeader = tcputils.GetTCPHeader(host, port)
+		r.ConnectionInformation.ServerHeader, _ = tcputils.GetTCPHeader(host, port)
 	}
 	r.ConnectionInformation.HostNameMatches = certutil.VerifyHostname(certs[0], host)
 	r.ConnectionInformation.ChainTrusted = certutil.IsTrusted(certs, host)
