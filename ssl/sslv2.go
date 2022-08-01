@@ -61,13 +61,17 @@ func sslv2Check(host string, port string) map[string][]string {
 	// Send clientHello
 	clientHello := makeClientHello()
 
-	err = tcputils.Write(conn, clientHello)
+	err = tcputils.Write(conn, clientHello, 2)
 	if err != nil {
 		logger.Errorf("event_id=clientHello_send_failed msg\"%v\"", err)
 		return connData
 	}
 
-	helloB := tcputils.Read(conn)
+	helloB, err := tcputils.Read(conn, 2)
+	if err != nil {
+		logger.Errorf("event_id=serverHello_read_failed msg\"%v\"", err)
+		return connData
+	}
 
 	if len(helloB) < 200 {
 		logger.Debugf("event_id=serverHello_not_found")

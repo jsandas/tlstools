@@ -17,7 +17,7 @@ import (
 
 // CanConnect used to confirm host is reachable via tcp
 func CanConnect(host string, port string) bool {
-	conn, err := net.DialTimeout("tcp", host+":"+port, 10*time.Second)
+	conn, err := net.DialTimeout("tcp", host+":"+port, 5*time.Second)
 	if err != nil {
 		logger.Warnf("event_id=tcp_dial_failed msg=\"%v\"", err)
 		return false
@@ -78,8 +78,10 @@ func BytetoInt(s []byte) int {
 }
 
 // GetHTTPHeader used to get server header/name
-func GetHTTPHeader(host string, port string, name string) (header string) {
-	var server = host + ":" + port
+func GetHTTPHeader(host string, port string, name string) (string, error) {
+	var header string
+
+	server := host + ":" + port
 
 	tlsCfg := &tls.Config{
 		ServerName:         host,
@@ -102,7 +104,7 @@ func GetHTTPHeader(host string, port string, name string) (header string) {
 	header = resp.Header.Get(name)
 	logger.Debugf("event_id=retrieved_header name=%s value=%s", name, header)
 
-	return
+	return header, err
 }
 
 // GetService returns name of service based on port
