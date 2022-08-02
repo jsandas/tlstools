@@ -21,6 +21,6 @@ unit:
 
 unit_docker:
 	docker build -t tlstools_build --target build .
-	docker run -v ${PWD}:/go/src/tlstools -w /go/src/tlstools -it --rm tlstools_build \
+	docker run -v ${PWD}:/go/src/tlstools -w /go/src/tlstools --rm tlstools_build \
 	bash -c "(cd test_setup && ./gen-certs.sh) && go test -count=1 ./... -coverprofile=coverage.out -covermode=atomic"
 
