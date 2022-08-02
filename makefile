@@ -19,7 +19,7 @@ unit:
 	(cd test_setup && ./gen-certs.sh)
 	go test -count=1 ./... -coverprofile=coverage.out -covermode=atomic
 
-unit_docker:
-	docker run -v ${PWD}:/go/src/tlstools -w /go/src/tlstools --rm golang:${GOLANG_VERSION} \
+unit_docker: build
+	docker run -v ${PWD}:/go/src/tlstools -w /go/src/tlstools --rm tlstools \
 	bash -c "(cd test_setup && ./gen-certs.sh) && go test -count=1 ./... -coverprofile=coverage.out -covermode=atomic"
 
