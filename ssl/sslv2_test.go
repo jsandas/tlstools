@@ -54,7 +54,7 @@ func TestCheckNoSSLv2(t *testing.T) {
 
 func TestCheckSSLv2(t *testing.T) {
 	// Start the new server.
-	srv, _ := net.Listen("tcp", ":443")
+	srv, _ := net.Listen("tcp4", ":443")
 	defer srv.Close()
 
 	var srvConn net.Conn
@@ -69,8 +69,9 @@ func TestCheckSSLv2(t *testing.T) {
 		time.Sleep(1 * time.Second)
 	}()
 
-	host := "localhost"
-	port := "443"
+	s := strings.Split(strings.Replace(srv.Addr().String(), "https://", "", -1), ":")
+	host := s[0]
+	port := s[1]
 	r := sslv2Check(host, port)
 	if _, ok := r["SSLv2"]; !ok {
 		t.Errorf("sslv2 check should have succeeded, host: %s:%s", host, port)
