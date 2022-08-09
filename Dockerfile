@@ -7,16 +7,16 @@ WORKDIR /go/src/tlstools
 
 RUN go mod download
 
-RUN apt update && apt install -y nmap
+RUN apt-get update && apt install -y nmap
 
 RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools
 
 # build final image
 FROM debian
 
-RUN apt update && apt upgrade -y \
-    && apt install -y nmap \
-    && apt clean \
+RUN apt-get update && apt upgrade -y \
+    && apt-get install -y nmap \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -r appuser
