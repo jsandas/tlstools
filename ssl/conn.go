@@ -1,15 +1,12 @@
 package ssl
 
 import (
-	"bytes"
 	"crypto/tls"
 	"net"
-	"os/exec"
-	"strings"
 	"time"
 
+	"github.com/jsandas/etls"
 	logger "github.com/jsandas/gologger"
-	"github.com/jsandas/tlstools/utils"
 )
 
 func cipherStrList(uList []uint16) []string {
@@ -60,7 +57,7 @@ func ConnState(host string, port string) (connState tls.ConnectionState, tlsv in
 func serverDial(host string, port string, proto int, ciphers []uint16) (connected bool) {
 	var server = host + ":" + port
 
-	tlsCfg := tls.Config{
+	tlsCfg := etls.Config{
 		ServerName:         host,
 		InsecureSkipVerify: true,
 		CipherSuites:       ciphers,
@@ -69,7 +66,7 @@ func serverDial(host string, port string, proto int, ciphers []uint16) (connecte
 	}
 
 	if ciphers == nil {
-		tlsCfg = tls.Config{
+		tlsCfg = etls.Config{
 			ServerName:         host,
 			InsecureSkipVerify: true,
 			MinVersion:         uint16(proto),
@@ -89,9 +86,9 @@ func serverDial(host string, port string, proto int, ciphers []uint16) (connecte
 		return
 	}
 
-	client := tls.Client(conn, &tlsCfg)
+	client := etls.FakeClient(conn, &tlsCfg)
 
-	err = client.Handshake()
+	err = client.FakeHandshake()
 	if err != nil {
 		cList := cipherStrList(ciphers)
 		logger.Debugf("event_id=tls_dial_failed proto=%s cipher=%v msg\"%v\"", protocolVersionMap[proto].name, cList, err)
@@ -101,74 +98,74 @@ func serverDial(host string, port string, proto int, ciphers []uint16) (connecte
 	return true
 }
 
-func opensslCString(uList []uint16) string {
-	var cList []string
-	for _, i := range uList {
-		for k, v := range cipherSuites {
-			if k == i {
-				cList = append(cList, v.opensslname)
-			}
-		}
-	}
+// func opensslCString(uList []uint16) string {
+// 	var cList []string
+// 	for _, i := range uList {
+// 		for k, v := range cipherSuites {
+// 			if k == i {
+// 				cList = append(cList, v.opensslname)
+// 			}
+// 		}
+// 	}
 
-	return strings.Join(cList, ":")
-}
+// 	return strings.Join(cList, ":")
+// }
 
-// opensslDial returns boolean if destination host support specified proto/cipher combo
-// this really should only be used for testing sslv3
-func opensslDial(host string, port string, proto int, ciphers []uint16) bool {
-	path, err := exec.LookPath("openssl")
-	if err != nil {
-		logger.Warnf("event_id=openssl_not_found")
-		return false
-	}
+// // opensslDial returns boolean if destination host support specified proto/cipher combo
+// // this really should only be used for testing sslv3
+// func opensslDial(host string, port string, proto int, ciphers []uint16) bool {
+// 	path, err := exec.LookPath("openssl")
+// 	if err != nil {
+// 		logger.Warnf("event_id=openssl_not_found")
+// 		return false
+// 	}
 
-	c := ""
-	if ciphers != nil {
-		c = opensslCString(ciphers)
-	}
+// 	c := ""
+// 	if ciphers != nil {
+// 		c = opensslCString(ciphers)
+// 	}
 
-	s := host + ":" + port
-	p := protocolVersionMap[proto].opensslname
+// 	s := host + ":" + port
+// 	p := protocolVersionMap[proto].opensslname
 
-	service := utils.GetService(port)
+// 	service := utils.GetService(port)
 
-	clientStr := "s_client"
-	connectStr := "-connect"
-	servernameStr := "-servername"
-	cipherStr := "-cipher"
-	startTLSStr := "-starttls"
+// 	clientStr := "s_client"
+// 	connectStr := "-connect"
+// 	servernameStr := "-servername"
+// 	cipherStr := "-cipher"
+// 	startTLSStr := "-starttls"
 
-	cmd := exec.Command(path, clientStr, connectStr, s, servernameStr, host, p, cipherStr, c)
-	if c == "" {
-		// override cmd if c is empty
-		cmd = exec.Command(path, clientStr, connectStr, s, servernameStr, host, p)
-	}
+// 	cmd := exec.Command(path, clientStr, connectStr, s, servernameStr, host, p, cipherStr, c)
+// 	if c == "" {
+// 		// override cmd if c is empty
+// 		cmd = exec.Command(path, clientStr, connectStr, s, servernameStr, host, p)
+// 	}
 
-	if service != "https" && service != "rdp" || strings.HasSuffix(service, "SSL") {
-		cmd = exec.Command(path, clientStr, connectStr, s, servernameStr, host, p, cipherStr, c, startTLSStr, service)
-		if c == "" {
-			// override cmd if c is empty
-			cmd = exec.Command(path, clientStr, connectStr, s, servernameStr, host, p, startTLSStr, service)
-		}
-	}
+// 	if service != "https" && service != "rdp" || strings.HasSuffix(service, "SSL") {
+// 		cmd = exec.Command(path, clientStr, connectStr, s, servernameStr, host, p, cipherStr, c, startTLSStr, service)
+// 		if c == "" {
+// 			// override cmd if c is empty
+// 			cmd = exec.Command(path, clientStr, connectStr, s, servernameStr, host, p, startTLSStr, service)
+// 		}
+// 	}
 
-	// Q closed the connection automatically
-	cmd.Stdin = strings.NewReader("Q")
-	var out bytes.Buffer
-	cmd.Stdout = &out
+// 	// Q closed the connection automatically
+// 	cmd.Stdin = strings.NewReader("Q")
+// 	var out bytes.Buffer
+// 	cmd.Stdout = &out
 
-	// logger.Debugf("event_id=tls_dial proto=%s cipher=%v", protocolVersionMap[proto].name, c)
-	err = cmd.Run()
-	// fmt.Println(cmd.Stdout)
-	if err != nil {
-		cList := cipherStrList(ciphers)
-		logger.Debugf("event_id=tls_dial_failed proto=%s cipher=%v msg\"%v\"", protocolVersionMap[proto].name, cList, err)
-		return false
-	}
+// 	// logger.Debugf("event_id=tls_dial proto=%s cipher=%v", protocolVersionMap[proto].name, c)
+// 	err = cmd.Run()
+// 	// fmt.Println(cmd.Stdout)
+// 	if err != nil {
+// 		cList := cipherStrList(ciphers)
+// 		logger.Debugf("event_id=tls_dial_failed proto=%s cipher=%v msg\"%v\"", protocolVersionMap[proto].name, cList, err)
+// 		return false
+// 	}
 
-	return true
-}
+// 	return true
+// }
 
 // OpensslCmd experiment
 // func OpensslCmd(host string, port string) {

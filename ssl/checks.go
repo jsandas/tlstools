@@ -48,10 +48,6 @@ func Check(host string, port string, keyType string) map[string][]string {
 func connect(host string, port string, p int, c uint16) bool {
 	var cipher uint16 = c
 
-	if p < VersionTLS13 {
-		return opensslDial(host, port, p, []uint16{cipher})
-	}
-
 	return serverDial(host, port, p, []uint16{cipher})
 }
 
@@ -60,12 +56,8 @@ func getProtocols(host string, port string) []int {
 	var protoList []int
 
 	for p := range protocolVersionMap {
-		var supported bool
-		if p < VersionTLS13 {
-			supported = opensslDial(host, port, p, nil)
-		} else {
-			supported = serverDial(host, port, p, nil)
-		}
+
+		supported := serverDial(host, port, p, nil)
 
 		if supported {
 			protoList = append(protoList, p)
