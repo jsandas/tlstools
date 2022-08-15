@@ -21,7 +21,11 @@ test_cases = {
     "nginx_good": {
         "exp_key_type": "ECDSA-384",
         "exp_server": "nginx/1.23.0",
-        "exp_config_len": 2,
+        "exp_protocol_count": 2,
+        "exp_cipher_count": {
+            "TLSv1.2": 8,
+            "TLSv1.3": 3
+        },
         "exp_hbleed": {
             "vulnerable": False,
             "extension": False
@@ -33,7 +37,14 @@ test_cases = {
     "nginx_bad": {
         "exp_key_type": "RSA-2048",
         "exp_server": "nginx/1.2.9",
-        "exp_config_len": 5,
+        "exp_protocol_count": 5,
+        "exp_cipher_count": {
+            "SSLv2": 7,
+            "SSLv3": 36,
+            "TLSv1.0": 36,
+            "TLSv1.1": 36,
+            "TLSv1.2": 52,
+        },
         "exp_hbleed": {
             "vulnerable": True,
             "extension": True
@@ -45,7 +56,13 @@ test_cases = {
     "postfix_bad:25": {
         "exp_key_type": "RSA-2048",
         "exp_server": "220 mail.example.com ESMTP Postfix (Ubuntu)",
-        "exp_config_len": 4,
+        "exp_protocol_count": 4,
+        "exp_cipher_count": {
+            "SSLv3": 38,
+            "TLSv1.0": 38,
+            "TLSv1.1": 38,
+            "TLSv1.2": 54,
+        },
         "exp_hbleed": {
             "vulnerable": False,
             "extension": True
@@ -57,7 +74,13 @@ test_cases = {
     "postfix_bad:587": {
         "exp_key_type": "RSA-2048",
         "exp_server": "220 mail.example.com ESMTP Postfix (Ubuntu)",
-        "exp_config_len": 4,
+        "exp_protocol_count": 4,
+        "exp_cipher_count": {
+            "SSLv3": 29,
+            "TLSv1.0": 29,
+            "TLSv1.1": 29,
+            "TLSv1.2": 45,
+        },
         "exp_hbleed": {
             "vulnerable": False,
             "extension": True
@@ -135,31 +158,38 @@ def scan_test(host, data):
     ccs = vuln['ccsinjection']
 
     if key_type != data['exp_key_type']:
-        print("wrong key type, got {}, wanted {}".format(key_type, data['exp_key_type']))
+        print("Host: {} wrong key type, got {}, wanted {}".format(host, key_type, data['exp_key_type']))
         error()
     else:
         success()
 
     if server != data['exp_server']:
-        print("wrong server header, got {}, wanted {}".format(server, data['exp_server']))
+        print("Host: {} wrong server header, got {}, wanted {}".format(host, server, data['exp_server']))
         error()
     else:
         success()
 
-    if len(config) != data['exp_config_len']:
-        print("wrong number of protocols, got {}, wanted {}".format(len(config), data['exp_config_len']))
+    if len(config) != data['exp_protocol_count']:
+        print("host: {} wrong number of protocols, got {}, wanted {}".format(host, len(config), data['exp_protocol_count']))
         error()
     else:
         success()
+
+    for protocol, cipher in config.items():
+        if len(cipher) != data['exp_cipher_count'][protocol]:
+            print("Host: {} wrong number of ciphers for protocol, got {}, wanted {} for protocol {}".format(host, len(cipher), data['exp_cipher_count'][protocol], protocol))
+            error()
+        else:
+            success()
 
     if hbleed != data['exp_hbleed']:
-        print("wrong heartbleed result, got {}, wanted {}".format(hbleed, data['exp_hbleed']))
+        print("Host: {} wrong heartbleed result, got {}, wanted {}".format(host, hbleed, data['exp_hbleed']))
         error()
     else:
         success()
 
     if ccs != data['exp_ccsinjection']:
-        print("wrong ccsinjection result, got {}, wanted {}".format(ccs, data['exp_ccsinjection']))
+        print("Host: {} wrong ccsinjection result, got {}, wanted {}".format(host, ccs, data['exp_ccsinjection']))
         error()
     else:
         success()
