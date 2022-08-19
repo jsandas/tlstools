@@ -1,16 +1,14 @@
 package ssl
 
 import (
-	"sync"
-
 	logger "github.com/jsandas/gologger"
 )
 
 // Check performs tls handshakes to find support
 // ciphers and protocols
 func Check(host string, port string, keyType string) map[string][]string {
-	var WG sync.WaitGroup
-	var mutex = &sync.Mutex{}
+	// var WG sync.WaitGroup
+	// var mutex = &sync.Mutex{}
 	supportedConfig := make(map[string][]string)
 	var protoList []int
 	var cipherList []string
@@ -18,22 +16,22 @@ func Check(host string, port string, keyType string) map[string][]string {
 	protoList = getProtocols(host, port)
 
 	for i := range protoList {
-		WG.Add(1)
-		go func(p int) {
-			pname := protocolVersionMap[protoList[p]]
+		// WG.Add(1)
+		// go func(p int) {
+		pname := protocolVersionMap[protoList[i]]
 
-			cipherList = getCiphers(host, port, protoList[p], keyType)
+		cipherList = getCiphers(host, port, protoList[i], keyType)
 
-			if len(cipherList) > 0 {
-				mutex.Lock()
-				supportedConfig[pname.name] = cipherList
-				mutex.Unlock()
-			}
+		if len(cipherList) > 0 {
+			// mutex.Lock()
+			supportedConfig[pname.name] = cipherList
+			// mutex.Unlock()
+		}
 
-			WG.Done()
-		}(i)
+		// 	WG.Done()
+		// }(i)
 	}
-	WG.Wait()
+	// WG.Wait()
 
 	// Check sslv2 support
 	sslv2 := sslv2Check(host, port)
@@ -72,36 +70,38 @@ func getProtocols(host string, port string) []int {
 func getCiphers(host string, port string, protocol int, keyType string) []string {
 	var cipherList []string
 	// var tmpCipherList []uint16
-	var cWG sync.WaitGroup
-	var cmtex = &sync.Mutex{}
+	// var cWG sync.WaitGroup
+	// var cmtex = &sync.Mutex{}
 
-	cipherChan := make(chan string)
+	// cipherChan := make(chan string)
 	for i, c := range cipherSuites {
-		cWG.Add(1)
-		go func(c cipherSuite) {
-			var supported bool
+		// cWG.Add(1)
+		// go func(c cipherSuite) {
+		var supported bool
 
-			if !proceed(c, protocol, keyType) {
-				cWG.Done()
-				return
-			}
-			logger.Debugf("testing cipher: %s | protocol: %d", c.name, protocol)
-			supported = connect(host, port, protocol, i)
+		if !proceed(c, protocol, keyType) {
+			// cWG.Done()
+			// return
+			continue
+		}
+		logger.Debugf("testing cipher: %s | protocol: %d", c.name, protocol)
+		supported = connect(host, port, protocol, i)
 
-			if supported {
-				cipherChan <- c.name
-			}
-			cWG.Done()
-		}(c)
+		if supported {
+			cipherList = append(cipherList, c.name)
+			// cipherChan <- c.name
+		}
+		// 	cWG.Done()
+		// }(c)
 
-		go func() {
-			for s := range cipherChan {
-				cmtex.Lock()
-				cipherList = append(cipherList, s)
-				cmtex.Unlock()
-			}
-		}()
-		cWG.Wait()
+		// go func() {
+		// 	for s := range cipherChan {
+		// 		cmtex.Lock()
+		// 		cipherList = append(cipherList, s)
+		// 		cmtex.Unlock()
+		// 	}
+		// }()
+		// cWG.Wait()
 	}
 
 	// sort.Ints(tmpCipherList)

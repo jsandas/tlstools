@@ -3,7 +3,10 @@ GOLANG_VERSION=$(shell cat go.mod | egrep "^go\s" | cut -d ' ' -f 2)
 build: 
 	docker build -t tlstools .
 
-fresh: build run
+build_nocache:
+	docker build --no-cache -t tlstools .
+
+fresh: build_nocache run
 
 integration: build run
 	python3 test_setup/integration_tests.py
