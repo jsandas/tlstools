@@ -8,8 +8,8 @@ github.com/go-chi/chi v4.1.2+incompatible h1:fGFk2Gmi/YKXk0OmGfBh0WgmN3XB8lVnEyN
 github.com/go-chi/chi v4.1.2+incompatible/go.mod h1:eB3wogJHnLi3x/kFX2A+IbTBlXxmMeXJVKy9tTv1XzQ=
 github.com/go-chi/render v1.0.2 h1:4ER/udB0+fMWB2Jlf15RV3F4A2FDuYi/9f+lFttR/Lg=
 github.com/go-chi/render v1.0.2/go.mod h1:/gr3hVkmYR0YlEy3LxCuVRFzEu9Ruok+gFqbIofjao0=
-github.com/jsandas/etls v0.1.1 h1:gCiCFOFRAB/XQ1oTKduVBuUIpziy7sL9nPhFAJuKK7k=
-github.com/jsandas/etls v0.1.1/go.mod h1:7DsHIwBnMQAb0+QzV8Jb+lCJdebQ4091q2FTWdSWfcE=
+github.com/jsandas/etls v0.1.2-0.20220819033401-74b1766e95a6 h1:nr9wdPF5v3SpHL4rs3Kvy4QNFsNY8CIqHj+q4smCx6g=
+github.com/jsandas/etls v0.1.2-0.20220819033401-74b1766e95a6/go.mod h1:7DsHIwBnMQAb0+QzV8Jb+lCJdebQ4091q2FTWdSWfcE=
 github.com/jsandas/gologger v0.0.0-20220724041954-4d8e63f0a712 h1:5pPQlZcqmMFlc8u/Ey9nptY6lUDHKIlgzVL02AviGFA=
 github.com/jsandas/gologger v0.0.0-20220724041954-4d8e63f0a712/go.mod h1:2hfy33/xeFKZ7IbPgV/zJug8UyY8tbPHoJaJy8rvfrk=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
