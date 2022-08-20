@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/jsandas/etls"
 )
 
 func TestConnect(t *testing.T) {
@@ -26,13 +28,13 @@ func TestConnect(t *testing.T) {
 	port := s[1]
 
 	// SSLv3/TLS_RSA_WITH_AES_128_CBC_SHA no go
-	b1 := connect(host, port, VersionSSL30, TLS_RSA_WITH_AES_128_CBC_SHA)
+	b1 := connect(host, port, etls.VersionSSL30, etls.TLS_RSA_WITH_AES_128_CBC_SHA)
 	if b1 {
 		t.Errorf("should not have connected, got: %v, want: %v.", b1, false)
 	}
 
 	// TLSv1.2/TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 go
-	b2 := connect(host, port, tls.VersionTLS12, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
+	b2 := connect(host, port, etls.VersionTLS12, etls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384)
 	if !b2 {
 		t.Errorf("should have connected, got: %v, want: %v.", b2, true)
 	}
@@ -50,8 +52,8 @@ func TestCheck(t *testing.T) {
 	}))
 	server.TLS = &tls.Config{
 		// CipherSuites: uint16[],
-		MinVersion: uint16(VersionTLS12),
-		MaxVersion: uint16(VersionTLS13),
+		MinVersion: uint16(etls.VersionTLS12),
+		MaxVersion: uint16(etls.VersionTLS13),
 	}
 	// Start a local HTTPS server
 	server.StartTLS()

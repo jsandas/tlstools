@@ -1,22 +1,11 @@
 package ssl
 
-const (
-	VersionSSL30 = 0x0300
-	VersionTLS10 = 0x0301
-	VersionTLS11 = 0x0302
-	VersionTLS12 = 0x0303
-	VersionTLS13 = 0x0304
-)
+import "github.com/jsandas/etls"
 
-type protocolInfo struct {
-	name        string
-	opensslname string
-}
-
-var protocolVersionMap = map[int]protocolInfo{
-	VersionTLS13: {"TLSv1.3", "-tls1_3"},
-	VersionTLS12: {"TLSv1.2", "-tls1_2"},
-	VersionTLS11: {"TLSv1.1", "-tls1_1"},
-	VersionTLS10: {"TLSv1.0", "-tls1"},
-	VersionSSL30: {"SSLv3", "-ssl3"},
+var protocolVersionMap = map[int]string{
+	etls.VersionTLS13: "TLSv1.3",
+	etls.VersionTLS12: "TLSv1.2",
+	etls.VersionTLS11: "TLSv1.1",
+	etls.VersionTLS10: "TLSv1.0",
+	etls.VersionSSL30: "SSLv3",
 }

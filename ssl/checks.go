@@ -1,6 +1,7 @@
 package ssl
 
 import (
+	"github.com/jsandas/etls"
 	logger "github.com/jsandas/gologger"
 )
 
@@ -24,7 +25,7 @@ func Check(host string, port string, keyType string) map[string][]string {
 
 		if len(cipherList) > 0 {
 			// mutex.Lock()
-			supportedConfig[pname.name] = cipherList
+			supportedConfig[pname] = cipherList
 			// mutex.Unlock()
 		}
 
@@ -109,7 +110,7 @@ func getCiphers(host string, port string, protocol int, keyType string) []string
 	// 	cInt := tmpCipherList[i]
 	// 	cipherList = append(cipherList, cipherSuitesMap[cInt].name)
 	// }
-	logger.Debugf("supported ciphers %s: %v", protocolVersionMap[protocol].name, cipherList)
+	logger.Debugf("supported ciphers %s: %v", protocolVersionMap[protocol], cipherList)
 
 	return cipherList
 }
@@ -129,7 +130,7 @@ func proceed(c cipherSuite, p int, k string) bool {
 	}
 
 	// skip cipher if cipher is not for tlsv1.3
-	if (p == VersionTLS13) && (c.MinProtoVersion != p) {
+	if (p == etls.VersionTLS13) && (c.MinProtoVersion != p) {
 		// logger.Debugf("skip cipher %s | %d reason: not_tls13_cipher", c.name, p)
 		return false
 	}
