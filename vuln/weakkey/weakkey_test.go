@@ -49,6 +49,26 @@ hh+5myPwDwMgc/mH+jDBK8vyaYGb+xViHK9Fa70jkcSX/AOmYYRKfKZbaR8ba/Ee
 xosT4eW/v04AyK9nfcPNbhg=
 -----END CERTIFICATE-----`
 
+const oddSize1782 = `
+-----BEGIN CERTIFICATE-----
+MIIC8DCCAfoCCQC/HRHmKuAz7jANBgkqhkiG9w0BAQsFADBeMQswCQYDVQQGEwJV
+UzELMAkGA1UECAwCTlkxFjAUBgNVBAcMDU5ldyBZb3JrIENpdHkxEDAOBgNVBAoM
+B0Zha2VPcmcxGDAWBgNVBAMMD29kZC5rZXlzaXplLmNvbTAeFw0yMjA4MjEwMjMw
+NTlaFw0yMzA4MjEwMjMwNTlaMF4xCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJOWTEW
+MBQGA1UEBwwNTmV3IFlvcmsgQ2l0eTEQMA4GA1UECgwHRmFrZU9yZzEYMBYGA1UE
+AwwPb2RkLmtleXNpemUuY29tMIH9MA0GCSqGSIb3DQEBAQUAA4HrADCB5wKB3zfP
+RDCqxw7BH7cXm1vMEmH4EAJuVpWYJGTGr8krhJUyRiW0RwYyA7uBVMQi5+zCl+/P
+oCBwPNwe8LmDhjmT6O0OLhOTeEGITlggSZOskppfpxEOM450S9i9RhYHnGxim8uO
+tUoHJfaUy8IeKYHA/RGS2OaE704F3HsQzvTplmYiXiD0cc9O55y/CMno/KPU0Fw0
+/CdWsU2vbxQlmvnB4gS/7bou/XvFhsaa7fQZrh2RewA3FnJkJhKsIMOeOu7Svj6Z
+w6zDW+CV2us16I+kmim2Qe4b+VXlTp1qSvVmd2UCAwEAATANBgkqhkiG9w0BAQsF
+AAOB4AAUW8wOhOQRJGghghlM5e+zWMno15D2keoUBVvOyapJjgnrJkFpWLBt+Pr6
+R9Oo1BFMpmSp4VNQcKQ84ddVNoSpgzKk6M4C4g8IEyzh8OWu7YEg81J2n90g8xMA
+6iYZenPB9FDgylPGOfE4pz/G06aMW24BT64cX+p9+Skiw1lqkD3Copj3tSlNmkKS
+rNJFWh3NMI1M1r+WiG4AhGPSwWyL6Z2eni9ggpLNeAF0hHtcK6lBF6NLxt3NjHi/
+UrUNQTca4I10vp16gVCdU3AsMmaYXLn7vqoiexdgzQmQqsJW
+-----END CERTIFICATE-----`
+
 const good2048 = `
 -----BEGIN CERTIFICATE-----
 MIIDVDCCAjwCAQEwDQYJKoZIhvcNAQELBQAwbTEZMBcGA1UEAwwQU2VsZi1TaWdu
@@ -136,6 +156,29 @@ func TestWeakKeyGood2048(t *testing.T) {
 
 	if r.Vulnerable {
 		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, false)
+	}
+
+}
+
+func TestWeakKeyUncommonKeySize(t *testing.T) {
+	var r DebianWeakKey
+
+	block, _ := pem.Decode([]byte(oddSize1782))
+	if block == nil {
+		panic("failed to parse certificate PEM")
+	}
+	crt, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		t.Errorf("error parsing certificate for test: %v", err)
+	}
+
+	pk := crt.PublicKey.(*rsa.PublicKey)
+	ks := pk.Size() * 8
+	mod := fmt.Sprintf("%x", pk.N)
+	err = r.Check(ks, mod)
+
+	if err == nil {
+		t.Errorf("Expected error for odd key size")
 	}
 
 }
