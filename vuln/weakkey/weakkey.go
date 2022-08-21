@@ -3,14 +3,13 @@ package weakkey
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"strconv"
 	"strings"
-
-	logger "github.com/jsandas/gologger"
 )
 
 /*
@@ -60,15 +59,13 @@ func (w *DebianWeakKey) Check(keysize int, modulus string) error {
 	// load weak key file
 	b, err := ioutil.ReadFile(bpath + "/weak_keysize_" + ks)
 	if err != nil {
-		logger.Errorf("event_id=file_read_error msg\"%v\"", err)
-		return err
+		return errors.New("event_id=weak_key_failed_read file=weak_keysize_" + ks)
 	}
 
 	// the hashes in the weak_key files are offset by 20 bytes
 	for i := 0; i < len(b); i = i + 20 {
 		bs := hex.EncodeToString(b[i : i+20])
 		if sh == bs {
-			logger.Warnf("event_id=weak_key_found %s %d:%d\n", bs, i, i+20)
 			w.Vulnerable = true
 		}
 	}
