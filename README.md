@@ -40,15 +40,13 @@ openssl ciphers -V 'ALL:COMPLEMENTOFALL'
 ```
 
 Example requests:
+Collect certificate information:
 ```
-curl "http://localhost:8080/api/v1/scan?host=intranetlib.geneseo.edu:443"
+curl "http://localhost:8080/api/v1/scan/certificate?host=www.google.com:443"
 ```
+Collect server configuration:
 ```
-curl "http://localhost:8080/api/v1/scan?host=www.google.com"
-```
-Or a real bad server:
-```
-curl "http://localhost:8080/api/v1/scan?host=kis.mhs.ch"
+curl "http://localhost:8080/api/v1/scan/configuration?host=www.google.com"
 ```
 ```
 curl -X POST --data-binary @test.csr "http://localhost:8080/api/v1/parser/csr"
@@ -64,7 +62,7 @@ Build container:
 make build
 ```
 
-Run containers:
+Run integration containers (for manual testing):
 ```
 make run
 ```
