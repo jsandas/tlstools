@@ -1,5 +1,5 @@
 [![main](https://github.com/jsandas/tlstools/actions/workflows/release.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/release.yaml)
-[![acceptance](https://github.com/jsandas/tlstools/actions/workflows/acceptance.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/acceptance.yaml)
+[![acceptance](https://github.com/jsandas/tlstools/actions/workflows/integration.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/integration.yaml)
 [![unit](https://github.com/jsandas/tlstools/actions/workflows/unit.yaml/badge.svg)](https://github.com/jsandas/tlstools/actions/workflows/unit.yaml)
 [![codecov](https://codecov.io/gh/jsandas/tlstools/branch/master/graph/badge.svg?token=BTCVS201GQ)](https://codecov.io/gh/jsandas/tlstools)
 
