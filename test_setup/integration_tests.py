@@ -10,7 +10,8 @@ import urllib.request
 import urllib.parse
 
 APP_HOST = "http://localhost:8080/api/v1"
-SCAN_URL = APP_HOST + "/scan"
+SCAN_CERT_URL = APP_HOST + "/scan/certificate"
+SCAN_CONFIG_URL = APP_HOST + "/scan/configuration"
 CSR_URL = APP_HOST + "/parse/csr"
 CERT_URL = APP_HOST + "/parse/certificate"
 
@@ -135,21 +136,24 @@ def success():
 
 def scan_test(host, data):
     params = urllib.parse.urlencode({'host':host})
-    url = SCAN_URL + '?' + params
+    cert_url = SCAN_CERT_URL + '?' + params
+    config_url = SCAN_CONFIG_URL + '?' + params
     res = {}
 
     try:
-        req = urllib.request.urlopen(url)
-        res = json.loads(req.read())
+        cert_req = urllib.request.urlopen(cert_url)
+        cert_res = json.loads(cert_req.read())
+        config_req = urllib.request.urlopen(config_url)
+        config_res = json.loads(config_req.read())
     except Exception as e:
         print("failed to connect to {}".format(host), e)
         global ERRORS
         ERRORS =+ len(data)
         return
 
-    cert = res['certificates'][0]
-    conn = res['connectionInformation']
-    vuln = res['vulnerabilities']
+    cert = cert_res['certificates'][0]
+    conn = config_res
+    vuln = conn['vulnerabilities']
 
     key_type = cert['keyType']
     server = conn['serverHeader']
