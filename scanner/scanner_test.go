@@ -76,8 +76,8 @@ func TestGetCertDataWithOCSPStaple(t *testing.T) {
 
 }
 
-func TestScan(t *testing.T) {
-	var r Results
+func TestScanCertificate(t *testing.T) {
+	var cd CertificateData
 	// Start a local HTTPS server
 	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
@@ -93,26 +93,20 @@ func TestScan(t *testing.T) {
 	s := strings.Replace(server.URL, "https://", "", -1)
 	host, port, _ := net.SplitHostPort(s)
 
-	r.Scan(host, port)
+	cd.ScanCertificate(host, port)
 
-	if len(r.Certificates) == 0 {
+	if len(cd.Certificates) == 0 {
 		t.Errorf("server should have tls")
 	}
 
-	san := r.Certificates[0].Extensions.SubjectAlternativeNames[0]
+	san := cd.Certificates[0].Extensions.SubjectAlternativeNames[0]
 	if san != "example.com" {
 		t.Errorf("wrong SAN info, got: %s, want: %s.", san, "example.com")
 	}
-
-	// cannot get consistent result when running locally vs github actions
-	// ktype := r.Certificates[0].KeyType
-	// if ktype != "RSA-1024" {
-	// 	t.Errorf("wrong keytpe info, got: %s, want: %s.", ktype, "RSA-1024")
-	// }
 }
 
-func TestScanNoTLS(t *testing.T) {
-	var r Results
+func TestScanCertificateNoTLS(t *testing.T) {
+	var cd CertificateData
 	// Start a local HTTPS server
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// Test request parameters
@@ -128,9 +122,57 @@ func TestScanNoTLS(t *testing.T) {
 	s := strings.Replace(server.URL, "https://", "", -1)
 	host, port, _ := net.SplitHostPort(s)
 
-	r.Scan(host, port)
+	cd.ScanCertificate(host, port)
 
-	if len(r.Certificates) != 0 {
+	if len(cd.Certificates) != 0 {
+		t.Errorf("server should not have tls")
+	}
+}
+
+func TestScanConfiguration(t *testing.T) {
+	var cd ConfigurationData
+	// Start a local HTTPS server
+	server := httptest.NewTLSServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// Test request parameters
+		if req.URL.String() == "/" {
+			// Send response to be tested
+			rw.Header().Set("Server", "Apache")
+			rw.Write([]byte("Hello"))
+		}
+	}))
+	// Close the server when test finishes
+	defer server.Close()
+
+	s := strings.Replace(server.URL, "https://", "", -1)
+	host, port, _ := net.SplitHostPort(s)
+
+	cd.ScanConfiguration(host, port)
+
+	if len(cd.SupportedConfig) != 4 {
+		t.Errorf("wrong config length, got: %d, want: %d.", len(cd.SupportedConfig), 2)
+	}
+}
+
+func TestScanConfigurationNoTLS(t *testing.T) {
+	var cd ConfigurationData
+	// Start a local HTTPS server
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// Test request parameters
+		if req.URL.String() == "/" {
+			// Send response to be tested
+			rw.Header().Set("Server", "Apache")
+			rw.Write([]byte("Hello"))
+		}
+	}))
+	// Close the server when test finishes
+	defer server.Close()
+
+	s := strings.Replace(server.URL, "https://", "", -1)
+	host, port, _ := net.SplitHostPort(s)
+
+	cd.ScanConfiguration(host, port)
+
+	if len(cd.SupportedConfig) != 0 {
 		t.Errorf("server should not have tls")
 	}
 }
