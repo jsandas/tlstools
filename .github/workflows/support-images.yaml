@@ -3,7 +3,7 @@ name: build support images
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "13 * * * 0"
+    - cron: "13 5 * * 0"
 
 jobs:
   build_support_images:
