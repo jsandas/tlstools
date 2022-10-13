@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	logger "github.com/jsandas/gologger"
-	"github.com/jsandas/tlstools/utils"
+	"github.com/jsandas/tlstools/pkg/utils"
 )
 
 type startTLSmsg struct {
