@@ -1,4 +1,4 @@
-# build go binary
+## build go binary
 FROM golang:1.18 as build
 
 COPY . /go/src/tlstools
@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools ./cmd/tlstools
 
 # RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools ./cmd/tlstools-cli
 
-# build final image
+## build base image
 FROM debian as base
 
 RUN apt-get update && apt upgrade -y \
@@ -24,16 +24,23 @@ RUN apt-get update && apt upgrade -y \
 RUN useradd -r appuser
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY vuln/weakkey/bin /usr/local/bin
-COPY vuln/scripts /usr/local/bin/scripts
+COPY pkg/vuln/weakkey/bin /usr/local/bin
+COPY pkg/vuln/scripts /usr/local/bin/scripts
 
 USER appuser
 
 WORKDIR /usr/local/bin
 
-
-FROM debian as server
+## build server image
+FROM base as server
 
 COPY --from=build /usr/local/bin/tlstools /usr/local/bin/tlstools
 
 ENTRYPOINT ["/usr/local/bin/tlstools"]
+
+## build cli image
+# FROM base as cli
+
+# COPY --from=build /usr/local/bin/tlstools-cli /usr/local/bin/tlstools-cli
+
+# ENTRYPOINT ["/usr/local/bin/tlstools-cli"]
