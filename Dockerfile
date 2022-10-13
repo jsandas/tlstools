@@ -9,10 +9,12 @@ RUN go mod download
 
 RUN apt-get update && apt install -y nmap
 
-RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools
+RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools ./cmd/tlstools
+
+# RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools ./cmd/tlstools-cli
 
 # build final image
-FROM debian
+FROM debian as base
 
 RUN apt-get update && apt upgrade -y \
     && apt-get install -y nmap \
@@ -21,8 +23,6 @@ RUN apt-get update && apt upgrade -y \
 
 RUN useradd -r appuser
 
-# copy tlstools files
-COPY --from=build /usr/local/bin/tlstools /usr/local/bin/tlstools
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY vuln/weakkey/bin /usr/local/bin
 COPY vuln/scripts /usr/local/bin/scripts
@@ -30,5 +30,10 @@ COPY vuln/scripts /usr/local/bin/scripts
 USER appuser
 
 WORKDIR /usr/local/bin
+
+
+FROM debian as server
+
+COPY --from=build /usr/local/bin/tlstools /usr/local/bin/tlstools
 
 ENTRYPOINT ["/usr/local/bin/tlstools"]
