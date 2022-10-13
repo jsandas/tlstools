@@ -6,8 +6,8 @@ import (
 	"time"
 
 	logger "github.com/jsandas/gologger"
-	"github.com/jsandas/tlstools/utils"
-	"github.com/jsandas/tlstools/utils/tcputils"
+	"github.com/jsandas/tlstools/pkg/utils"
+	"github.com/jsandas/tlstools/pkg/utils/tcputils"
 )
 
 var sslv2Ciphers = map[string]string{

@@ -8,14 +8,14 @@ import (
 	"sync"
 
 	logger "github.com/jsandas/gologger"
-	"github.com/jsandas/tlstools/certutil"
-	"github.com/jsandas/tlstools/ssl"
-	"github.com/jsandas/tlstools/ssl/status"
-	"github.com/jsandas/tlstools/utils"
-	"github.com/jsandas/tlstools/utils/tcputils"
-	"github.com/jsandas/tlstools/vuln/ccs"
-	"github.com/jsandas/tlstools/vuln/heartbleed"
-	"github.com/jsandas/tlstools/vuln/weakkey"
+	"github.com/jsandas/tlstools/pkg/certutil"
+	"github.com/jsandas/tlstools/pkg/ssl"
+	"github.com/jsandas/tlstools/pkg/ssl/status"
+	"github.com/jsandas/tlstools/pkg/utils"
+	"github.com/jsandas/tlstools/pkg/utils/tcputils"
+	"github.com/jsandas/tlstools/pkg/vuln/ccs"
+	"github.com/jsandas/tlstools/pkg/vuln/heartbleed"
+	"github.com/jsandas/tlstools/pkg/vuln/weakkey"
 )
 
 func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertData {

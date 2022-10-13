@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/jsandas/tlstools/controllers"
+	"github.com/jsandas/tlstools/pkg/controllers"
 )
 
 func main() {

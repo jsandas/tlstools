@@ -7,8 +7,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	logger "github.com/jsandas/gologger"
-	"github.com/jsandas/tlstools/scanner"
-	"github.com/jsandas/tlstools/utils"
+	"github.com/jsandas/tlstools/pkg/scanner"
+	"github.com/jsandas/tlstools/pkg/utils"
 )
 
 // ScanRoutes builds and returns routes for scanning

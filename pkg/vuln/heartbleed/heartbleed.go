@@ -9,8 +9,8 @@ import (
 	"time"
 
 	logger "github.com/jsandas/gologger"
-	"github.com/jsandas/tlstools/ssl"
-	"github.com/jsandas/tlstools/utils/tcputils"
+	"github.com/jsandas/tlstools/pkg/ssl"
+	"github.com/jsandas/tlstools/pkg/utils/tcputils"
 )
 
 type Heartbleed struct {
