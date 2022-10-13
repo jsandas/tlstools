@@ -10,7 +10,7 @@ import (
 	"time"
 
 	logger "github.com/jsandas/gologger"
-	"github.com/jsandas/tlstools/utils"
+	"github.com/jsandas/tlstools/pkg/utils"
 
 	"golang.org/x/crypto/ocsp"
 )
