@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	logger "github.com/jsandas/gologger"
-	"github.com/jsandas/tlstools/certutil"
+	"github.com/jsandas/tlstools/pkg/certutil"
 )
 
 // ParserRoutes builds and returns routes for scanning

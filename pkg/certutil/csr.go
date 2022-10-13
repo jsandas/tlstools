@@ -3,7 +3,7 @@ package certutil
 import (
 	"crypto/x509"
 
-	"github.com/jsandas/tlstools/utils"
+	"github.com/jsandas/tlstools/pkg/utils"
 )
 
 // CSRData fields

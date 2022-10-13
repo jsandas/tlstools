@@ -1,10 +1,12 @@
 GOLANG_VERSION=$(shell cat go.mod | egrep "^go\s" | cut -d ' ' -f 2)
 
 build: 
-	docker build -t tlstools .
+	docker build -t tlstools --target server .
+	# docker build -t tlstools-cli --target cli .
 
 build_nocache:
-	docker build --no-cache -t tlstools .
+	docker build --no-cache -t tlstools --target server .
+	# docker build --no-cache -t tlstools-cli --target cli .
 
 fresh: build_nocache run
 

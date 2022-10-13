@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/jsandas/tlstools/utils"
+	"github.com/jsandas/tlstools/pkg/utils"
 )
 
 // tlsv1 = 01

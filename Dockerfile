@@ -1,4 +1,4 @@
-# build go binary
+## build go binary
 FROM golang:1.18 as build
 
 COPY . /go/src/tlstools
@@ -9,10 +9,12 @@ RUN go mod download
 
 RUN apt-get update && apt install -y nmap
 
-RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools
+RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools ./cmd/tlstools
 
-# build final image
-FROM debian
+# RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools ./cmd/tlstools-cli
+
+## build base image
+FROM debian as base
 
 RUN apt-get update && apt upgrade -y \
     && apt-get install -y nmap \
@@ -21,14 +23,24 @@ RUN apt-get update && apt upgrade -y \
 
 RUN useradd -r appuser
 
-# copy tlstools files
-COPY --from=build /usr/local/bin/tlstools /usr/local/bin/tlstools
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY vuln/weakkey/bin /usr/local/bin
-COPY vuln/scripts /usr/local/bin/scripts
+COPY pkg/vuln/weakkey/bin /usr/local/bin
+COPY pkg/vuln/scripts /usr/local/bin/scripts
 
 USER appuser
 
 WORKDIR /usr/local/bin
 
+## build server image
+FROM base as server
+
+COPY --from=build /usr/local/bin/tlstools /usr/local/bin/tlstools
+
 ENTRYPOINT ["/usr/local/bin/tlstools"]
+
+## build cli image
+# FROM base as cli
+
+# COPY --from=build /usr/local/bin/tlstools-cli /usr/local/bin/tlstools-cli
+
+# ENTRYPOINT ["/usr/local/bin/tlstools-cli"]
