@@ -44,7 +44,7 @@ ca_revoke () {
     local _type=${2:-rsa}
     openssl ca -config $CONF_DIR/openssl-$_type.conf -revoke ca-$_type/newcerts/$_cert.pem
     ca_gen_crl $_type
-    cp $CA_FOLDER-$_type/crl/rootca-$_type.crl ../ssl/status/testrevocationfiles/test.crl
+    cp $CA_FOLDER-$_type/crl/rootca-$_type.crl ../pkg/ssl/status/testrevocationfiles/test.crl
 }
 echo " created certificate authorities..."
 ca rsa
