@@ -2,7 +2,6 @@ package ccs
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -32,9 +31,6 @@ func (ccs *CCSInjection) Check(host string, port string) error {
 	} else if dir == "bin" {
 		spath = "scripts"
 	}
-
-	path, _ := os.Getwd()
-	fmt.Println(path)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
