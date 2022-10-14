@@ -81,7 +81,11 @@ func BytetoInt(s []byte) int {
 func GetHTTPHeader(host string, port string, name string) (string, error) {
 	var header string
 
-	server := host + ":" + port
+	server := host
+
+	if port != "443" {
+		server = host + ":" + port
+	}
 
 	tlsCfg := &tls.Config{
 		ServerName:         host,
@@ -95,12 +99,17 @@ func GetHTTPHeader(host string, port string, name string) (string, error) {
 	httpClient := &http.Client{
 		Transport: httpTransport,
 		Timeout:   10 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 	}
 
 	resp, err := httpClient.Get("https://" + server)
 	if err != nil {
 		logger.Warnf("event_id=http_client_failed msg=\"%v\"", err)
+		return header, err
 	}
+
 	header = resp.Header.Get(name)
 	logger.Debugf("event_id=retrieved_header name=%s value=%s", name, header)
 
