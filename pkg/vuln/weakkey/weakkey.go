@@ -3,14 +3,17 @@ package weakkey
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"strconv"
 	"strings"
+
+	logger "github.com/jsandas/gologger"
 )
+
+var commonKeySizes = []int{512, 1024, 2048, 4096}
 
 /*
 	Debian Weak Key checking is an old vulnerability.
@@ -22,12 +25,34 @@ import (
 	value of bpath
 */
 
+const (
+	notVulnerable = "no"
+	vulnerable    = "yes"
+	uncommonKey   = "uncommonKey"
+	testFailed    = "error"
+)
+
 type DebianWeakKey struct {
-	Vulnerable bool `json:"vulnerable"`
+	Vulnerable string `json:"vulnerable"`
 }
 
 // WeakKey detects if key was generated with weak Debian openssl
 func (w *DebianWeakKey) Check(keysize int, modulus string) error {
+	fmt.Println(keysize)
+	// only test if common keysize
+	var found bool
+	for _, ks := range commonKeySizes {
+		fmt.Println(ks)
+		if keysize == ks {
+			fmt.Println("found")
+			found = true
+		}
+	}
+	if !found {
+		fmt.Println("not found")
+		w.Vulnerable = uncommonKey
+		return nil
+	}
 
 	// bpath is the location of weakkeys binaries
 	// these are copied there during the docker build
@@ -59,14 +84,16 @@ func (w *DebianWeakKey) Check(keysize int, modulus string) error {
 	// load weak key file
 	b, err := ioutil.ReadFile(bpath + "/weak_keysize_" + ks)
 	if err != nil {
-		return errors.New("event_id=weak_key_failed_read file=weak_keysize_" + ks)
+		logger.Errorf("event_id=weak_key_failed_read file=weak_keysize_" + ks)
+		w.Vulnerable = testFailed
+		return err
 	}
 
 	// the hashes in the weak_key files are offset by 20 bytes
 	for i := 0; i < len(b); i = i + 20 {
 		bs := hex.EncodeToString(b[i : i+20])
 		if sh == bs {
-			w.Vulnerable = true
+			w.Vulnerable = vulnerable
 		}
 	}
 
