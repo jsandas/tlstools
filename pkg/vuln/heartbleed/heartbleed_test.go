@@ -18,7 +18,7 @@ func TestHeartbleedExtensionDisabled(t *testing.T) {
 			rw.Write([]byte("Hello"))
 		}
 	}))
-	// Close the server when test finishes
+	// Close the server when test finishes d
 	defer server.Close()
 
 	s := strings.Replace(server.URL, "https://", "", -1)
@@ -28,15 +28,15 @@ func TestHeartbleedExtensionDisabled(t *testing.T) {
 
 	r.Check(host, port, 771)
 
-	if r.Vulnerable || r.ExtensionEnabled {
-		t.Errorf("Wrong return, got: %v/%v, want: %s.", r.Vulnerable, r.ExtensionEnabled, "false/false")
+	if r.Vulnerable == vulnerable || r.ExtensionEnabled {
+		t.Errorf("Wrong return, got: %s/%v, want: %s/%v.", r.Vulnerable, r.ExtensionEnabled, notApplicable, false)
 	}
 
 	var rTLS13 Heartbleed
 	rTLS13.Check(host, port, 772)
 
-	if rTLS13.Vulnerable || rTLS13.ExtensionEnabled {
-		t.Errorf("Wrong return, got: %v/%v, want: %s.", rTLS13.Vulnerable, rTLS13.ExtensionEnabled, "false/false")
+	if rTLS13.Vulnerable == vulnerable || rTLS13.ExtensionEnabled {
+		t.Errorf("Wrong return, got: %v/%v, want: %s/%v.", rTLS13.Vulnerable, rTLS13.ExtensionEnabled, notVulnerable, false)
 	}
 }
 
