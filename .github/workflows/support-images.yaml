@@ -29,6 +29,10 @@ jobs:
         run: |
           docker build --tag ghcr.io/jsandas/mariadb_good test_setup/conf/mariadb_good
 
+      - name: Build weakkey image
+        run: |
+          docker build --tag ghcr.io/jsandas/debian-weakkeys test_setup/conf/debian-weakkeys
+
       - name: Push images
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io/jsandas -u ${{ github.actor }} --password-stdin
@@ -36,4 +40,5 @@ jobs:
           docker push ghcr.io/jsandas/nginx_bad
           docker push ghcr.io/jsandas/postfix_bad
           docker push ghcr.io/jsandas/mariadb_good
+          docker push  ghcr.io/jsandas/debian-weakkeys
           docker logout ghcr.io/jsandas
