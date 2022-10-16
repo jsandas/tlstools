@@ -49,7 +49,7 @@ hh+5myPwDwMgc/mH+jDBK8vyaYGb+xViHK9Fa70jkcSX/AOmYYRKfKZbaR8ba/Ee
 xosT4eW/v04AyK9nfcPNbhg=
 -----END CERTIFICATE-----`
 
-const oddSize1782 = `
+const oddSize1784 = `
 -----BEGIN CERTIFICATE-----
 MIIC8DCCAfoCCQC/HRHmKuAz7jANBgkqhkiG9w0BAQsFADBeMQswCQYDVQQGEwJV
 UzELMAkGA1UECAwCTlkxFjAUBgNVBAcMDU5ldyBZb3JrIENpdHkxEDAOBgNVBAoM
@@ -108,8 +108,8 @@ func TestWeakKeyBad1024(t *testing.T) {
 	mod := fmt.Sprintf("%x", pk.N)
 	r.Check(ks, mod)
 
-	if r.Vulnerable != true {
-		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, true)
+	if r.Vulnerable != vulnerable {
+		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, vulnerable)
 	}
 
 }
@@ -131,8 +131,8 @@ func TestWeakKeyBad2048(t *testing.T) {
 	mod := fmt.Sprintf("%x", pk.N)
 	r.Check(ks, mod)
 
-	if r.Vulnerable != true {
-		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, true)
+	if r.Vulnerable != vulnerable {
+		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, vulnerable)
 	}
 
 }
@@ -154,8 +154,8 @@ func TestWeakKeyGood2048(t *testing.T) {
 	mod := fmt.Sprintf("%x", pk.N)
 	r.Check(ks, mod)
 
-	if r.Vulnerable {
-		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, false)
+	if r.Vulnerable == vulnerable {
+		t.Errorf("Did not detect weak key, got: %v, want: %v.", r.Vulnerable, notVulnerable)
 	}
 
 }
@@ -163,7 +163,30 @@ func TestWeakKeyGood2048(t *testing.T) {
 func TestWeakKeyUncommonKeySize(t *testing.T) {
 	var r DebianWeakKey
 
-	block, _ := pem.Decode([]byte(oddSize1782))
+	block, _ := pem.Decode([]byte(oddSize1784))
+	if block == nil {
+		panic("failed to parse certificate PEM")
+	}
+	crt, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		t.Errorf("error parsing certificate for test: %v", err)
+	}
+
+	pk := crt.PublicKey.(*rsa.PublicKey)
+	ks := pk.Size() * 8
+	mod := fmt.Sprintf("%x", pk.N)
+	r.Check(ks, mod)
+
+	if r.Vulnerable != uncommonKey {
+		t.Errorf("wrong return, got: %v, want: %v.", r.Vulnerable, uncommonKey)
+	}
+}
+
+func TestWeakKeyMissingKeyFile(t *testing.T) {
+	commonKeySizes = []int{512, 1024, 1784, 2048, 4096}
+	var r DebianWeakKey
+
+	block, _ := pem.Decode([]byte(oddSize1784))
 	if block == nil {
 		panic("failed to parse certificate PEM")
 	}
