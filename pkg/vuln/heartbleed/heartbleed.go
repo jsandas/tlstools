@@ -13,16 +13,24 @@ import (
 	"github.com/jsandas/tlstools/pkg/utils/tcputils"
 )
 
+const (
+	notApplicable = "n/a"
+	notVulnerable = "no"
+	vulnerable    = "yes"
+	testFailed    = "error"
+)
+
 type Heartbleed struct {
-	Vulnerable       bool `json:"vulnerable"`
-	ExtensionEnabled bool `json:"extension"`
+	Vulnerable       string `json:"vulnerable"`
+	ExtensionEnabled bool   `json:"extension"`
 }
 
 // Heartbleed test
 func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 	conn, err := net.DialTimeout("tcp", host+":"+port, 3*time.Second)
 	if err != nil {
-		logger.Debugf("event_id=tcp_dial_failed msg=\"%v\"", err)
+		logger.Errorf("event_id=tcp_dial_failed msg=\"%v\"", err)
+		h.Vulnerable = testFailed
 		return err
 	}
 	defer conn.Close()
@@ -37,6 +45,7 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 
 	err = ssl.StartTLS(conn, port)
 	if err != nil {
+		h.Vulnerable = testFailed
 		return err
 	}
 
@@ -45,6 +54,7 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 	err = tcputils.Write(conn, clientHello, 2)
 	if err != nil {
 		logger.Debugf("event_id=heartbleed_clientHello_failed msg=\"%v\"", err)
+		h.Vulnerable = testFailed
 		return err
 	}
 
@@ -58,6 +68,7 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 		case "EOF":
 		default:
 			logger.Debugf("event_id=heartbleed_handshake_failed msg=\"%v\"", err)
+			h.Vulnerable = testFailed
 			return err
 		}
 	}
@@ -69,12 +80,14 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 		err = tcputils.Write(conn, payload, 2)
 		if err != nil {
 			logger.Debugf("event_id=heartbleed_payload_failed msg=\"%v\"", err)
+			h.Vulnerable = testFailed
 			return err
 		}
 
 		h.Vulnerable = heartbeatListen(connbuf)
 	}
 
+	h.Vulnerable = notApplicable
 	return nil
 
 }
@@ -109,7 +122,7 @@ func checkExtension(buff *bufio.Reader) (bool, error) {
 
 // reads from buffer and checks the size of the response
 // to determine if heartbleed was exploited
-func heartbeatListen(buff *bufio.Reader) bool {
+func heartbeatListen(buff *bufio.Reader) string {
 	// listen for reply
 	// ReadBytes has to be ran one to process started, but
 	// it will block if there isn't any data to read
@@ -142,12 +155,12 @@ func heartbeatListen(buff *bufio.Reader) bool {
 		}
 
 		if len(data) >= 1600 {
-			logger.Debugf("event_id=heartbleed_check status=%s", true)
-			return true
+			logger.Debugf("event_id=heartbleed_check status=%s", vulnerable)
+			return vulnerable
 		}
 
 		i++
 	}
 
-	return false
+	return notVulnerable
 }
