@@ -11,8 +11,14 @@ import (
 	logger "github.com/jsandas/gologger"
 )
 
+const (
+	notVulnerable = "no"
+	vulnerable    = "yes"
+	testFailed    = "error"
+)
+
 type CCSInjection struct {
-	Vulnerable bool `json:"vulnerable"`
+	Vulnerable string `json:"vulnerable"`
 }
 
 // change cipher suite injections
@@ -42,20 +48,23 @@ func (ccs *CCSInjection) Check(host string, port string) error {
 		nmap.WithContext(ctx),
 	)
 	if err != nil {
-		logger.Debugf("event_id=ccs_test_failed msg=%v", err)
+		logger.Errorf("event_id=ccs_test_failed msg=%v", err)
+		ccs.Vulnerable = testFailed
 		return err
 	}
 
 	result, _, err := scanner.Run()
 	if err != nil {
-		logger.Debugf("event_id=ccs_test_failed msg=%v", err)
+		logger.Errorf("event_id=ccs_test_failed msg=%v", err)
+		ccs.Vulnerable = testFailed
 		return err
 	}
 
 	count := len(result.Hosts[0].Ports[0].Scripts)
 
 	if count == 0 {
-		logger.Debugf("event_id=ccs_test status=%s", false)
+		logger.Debugf("event_id=ccs_test_completed result=%s", notVulnerable)
+		ccs.Vulnerable = notVulnerable
 		return nil
 	}
 
@@ -65,10 +74,10 @@ func (ccs *CCSInjection) Check(host string, port string) error {
 	output := result.Hosts[0].Ports[0].Scripts[0].Output
 
 	if strings.Contains(output, "VULNERABLE") {
-		ccs.Vulnerable = true
-		logger.Debugf("event_id=ccs_test vulnerable=%v", true)
+		logger.Debugf("event_id=ccs_test_completed result=%s", vulnerable)
+		ccs.Vulnerable = vulnerable
 	} else {
-		logger.Debugf("event_id=ccs_test vulnerable=%v", false)
+		logger.Debugf("event_id=ccs_test_completed results=%s", notVulnerable)
 	}
 
 	return nil

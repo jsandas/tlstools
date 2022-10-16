@@ -28,7 +28,7 @@ func TestCheck(t *testing.T) {
 
 	r.Check(host, port)
 
-	if r.Vulnerable {
-		t.Errorf("Wrong return, got: %v, want: %v.", r.Vulnerable, false)
+	if r.Vulnerable == vulnerable {
+		t.Errorf("Wrong return, got: %v, want: %v.", r.Vulnerable, notVulnerable)
 	}
 }
