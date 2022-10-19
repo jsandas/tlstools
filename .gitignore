@@ -1,4 +1,5 @@
 /tlstools
+/tlstools-cli
 resources/weakkeys/blacklist*
 *.bin
 ca-rsa

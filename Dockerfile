@@ -11,7 +11,7 @@ RUN apt-get update && apt install -y nmap
 
 RUN CGO_ENABLED=0 go build ./cmd/tlstools
 
-# RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools ./cmd/tlstools-cli
+RUN CGO_ENABLED=0 go build ./cmd/tlstools-cli
 
 ## build base image
 FROM debian as base
@@ -38,9 +38,9 @@ COPY --from=build /go/src/tlstools/tlstools /opt/tlstools/bin
 
 ENTRYPOINT ["/opt/tlstools/bin/tlstools"]
 
-## build cli image
-# FROM base as cli
+# build cli image
+FROM base as cli
 
-# COPY --from=build /usr/local/bin/tlstools-cli /usr/local/bin/tlstools-cli
+COPY --from=build /go/src/tlstools/tlstools-cli /opt/tlstools/bin
 
-# ENTRYPOINT ["/usr/local/bin/tlstools-cli"]
+ENTRYPOINT ["/opt/tlstools/bin/tlstools-cli"]

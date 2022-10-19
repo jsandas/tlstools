@@ -5,11 +5,11 @@ setup_local_dev:
 
 build: 
 	docker build -t tlstools --target server .
-	# docker build -t tlstools-cli --target cli .
+	docker build -t tlstools-cli --target cli .
 
 build_nocache:
 	docker build --no-cache -t tlstools --target server .
-	# docker build --no-cache -t tlstools-cli --target cli .
+	docker build --no-cache -t tlstools-cli --target cli .
 
 fresh: build_nocache run
 
