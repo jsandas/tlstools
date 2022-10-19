@@ -85,6 +85,7 @@ func (h *Heartbleed) Check(host string, port string, tlsVers int) error {
 		}
 
 		h.Vulnerable = heartbeatListen(connbuf)
+		return nil
 	}
 
 	h.Vulnerable = notApplicable
