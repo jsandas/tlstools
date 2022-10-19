@@ -26,16 +26,14 @@ func (ccs *CCSInjection) Check(host string, port string) error {
 	// spath is the location of weakkeys binaries
 	// these are copied there during the docker build
 	p, _ := os.Executable()
-	spath := path.Dir(p)
+	spath := path.Dir(p) + "/../resources/nmap"
 
 	// override spath if running go test
 	// or go run
 	cwd, _ := os.Getwd()
 	_, dir := path.Split(cwd)
 	if dir == "ccs" {
-		spath = "../scripts"
-	} else if dir == "bin" {
-		spath = "scripts"
+		spath = "../../../resources/nmap"
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
