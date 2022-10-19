@@ -1,10 +1,10 @@
 package weakkey
 
 import (
+	"bufio"
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"strconv"
@@ -38,18 +38,16 @@ type DebianWeakKey struct {
 
 // WeakKey detects if key was generated with weak Debian openssl
 func (w *DebianWeakKey) Check(keysize int, modulus string) error {
-	fmt.Println(keysize)
+	w.Vulnerable = notVulnerable
+
 	// only test if common keysize
 	var found bool
 	for _, ks := range commonKeySizes {
-		fmt.Println(ks)
 		if keysize == ks {
-			fmt.Println("found")
 			found = true
 		}
 	}
 	if !found {
-		fmt.Println("not found")
 		w.Vulnerable = uncommonKey
 		return nil
 	}
@@ -57,7 +55,7 @@ func (w *DebianWeakKey) Check(keysize int, modulus string) error {
 	// bpath is the location of weakkeys binaries
 	// these are copied there during the docker build
 	p, _ := os.Executable()
-	bpath := path.Dir(p)
+	bpath := path.Dir(p) + "/../resources/weakkeys"
 
 	mod := fmt.Sprintf("Modulus=%s\n", strings.ToUpper(modulus))
 	ks := strconv.Itoa(keysize)
@@ -76,23 +74,21 @@ func (w *DebianWeakKey) Check(keysize int, modulus string) error {
 	cwd, _ := os.Getwd()
 	_, dir := path.Split(cwd)
 	if dir == "weakkey" {
-		bpath = "bin"
-	} else if dir == "tlstools" {
-		bpath = "vuln/weakkey/bin"
+		bpath = "../../../resources/weakkeys"
 	}
 
 	// load weak key file
-	b, err := ioutil.ReadFile(bpath + "/weak_keysize_" + ks)
+	file, err := os.Open(bpath + "/blacklist.RSA-" + ks)
 	if err != nil {
-		logger.Errorf("event_id=weak_key_failed_read file=weak_keysize_" + ks)
+		logger.Errorf("event_id=weak_key_failed_read path=%s file=blacklist.RSA-%s", bpath, ks)
 		w.Vulnerable = testFailed
 		return err
 	}
+	defer file.Close()
 
-	// the hashes in the weak_key files are offset by 20 bytes
-	for i := 0; i < len(b); i = i + 20 {
-		bs := hex.EncodeToString(b[i : i+20])
-		if sh == bs {
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		if sh[20:] == scanner.Text() {
 			w.Vulnerable = vulnerable
 		}
 	}
