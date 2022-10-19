@@ -28,11 +28,11 @@ test_cases = {
         },
         "exp_protocol_count": 2,
         "exp_hbleed": {
-            "vulnerable": False,
+            "vulnerable": "n/a",
             "extension": False
         },
         "exp_ccsinjection": {
-            "vulnerable": False
+            "vulnerable": "no"
         }
     },
     "nginx_bad": {
@@ -47,11 +47,11 @@ test_cases = {
         },
         "exp_protocol_count": 5,
         "exp_hbleed": {
-            "vulnerable": True,
+            "vulnerable": "yes",
             "extension": True
         },
         "exp_ccsinjection": {
-            "vulnerable": True
+            "vulnerable": "yes"
         }
     },
     "postfix_bad:25": {
@@ -65,11 +65,11 @@ test_cases = {
         },
         "exp_protocol_count": 4,
         "exp_hbleed": {
-            "vulnerable": False,
+            "vulnerable": "no",
             "extension": True
         },
         "exp_ccsinjection": {
-            "vulnerable": False
+            "vulnerable": "no"
         }
     },
     "postfix_bad:587": {
@@ -83,11 +83,11 @@ test_cases = {
         },
         "exp_protocol_count": 4,
         "exp_hbleed": {
-            "vulnerable": False,
+            "vulnerable": "no",
             "extension": True
         },
         "exp_ccsinjection": {
-            "vulnerable": False
+            "vulnerable": "no"
         }
     },
 }
