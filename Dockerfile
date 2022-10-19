@@ -9,8 +9,6 @@ RUN go mod download
 
 RUN apt-get update && apt install -y nmap
 
-COPY --from=ghcr.io/jsandas/debian-weakkeys /usr/share/openssl-blacklist/* /go/src/tlstools/pkg/vuln/weakkey/bin
-
 RUN CGO_ENABLED=0 go build ./cmd/tlstools
 
 # RUN CGO_ENABLED=0 go build -o /usr/local/bin/tlstools ./cmd/tlstools-cli
