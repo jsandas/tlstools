@@ -9,6 +9,7 @@ require (
 	github.com/jsandas/etls v0.1.2-0.20220819033401-74b1766e95a6
 	github.com/jsandas/gologger v0.0.0-20220724041954-4d8e63f0a712
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

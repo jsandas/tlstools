@@ -7,6 +7,7 @@ import (
 	logger "github.com/jsandas/gologger"
 	"github.com/jsandas/tlstools/pkg/scanner"
 	"github.com/jsandas/tlstools/pkg/utils"
+	"gopkg.in/yaml.v2"
 )
 
 func main() {
@@ -36,7 +37,9 @@ func scanCert(host string, port string) {
 
 	results.ScanCertificate(host, port)
 
-	fmt.Printf("%+v\n", results)
+	yamlData, _ := yaml.Marshal(&results)
+
+	fmt.Printf(string(yamlData))
 }
 
 func scanConfig(host string, port string) {
@@ -44,5 +47,7 @@ func scanConfig(host string, port string) {
 
 	results.ScanConfiguration(host, port)
 
-	fmt.Printf("%+v\n", results)
+	yamlData, _ := yaml.Marshal(&results)
+
+	fmt.Printf(string(yamlData))
 }
