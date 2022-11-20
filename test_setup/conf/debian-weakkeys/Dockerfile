@@ -1,4 +1,4 @@
 FROM debian:jessie
 
-RUN apt update && \
-    apt install -y openssl-blacklist-extra openssh-blacklist-extra
+RUN apt-get update && \
+    apt-get install -y openssl-blacklist-extra openssh-blacklist-extra
