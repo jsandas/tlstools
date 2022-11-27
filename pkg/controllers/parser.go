@@ -6,14 +6,14 @@ import (
 	"encoding/pem"
 	"net/http"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	logger "github.com/jsandas/gologger"
 	"github.com/jsandas/tlstools/pkg/certutil"
 )
 
 // ParserRoutes builds and returns routes for scanning
-func ParserRoutes() *chi.Mux {
+func ParserRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Post("/certificate", certHandler)
 	r.Post("/csr", csrHandler)
