@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	logger "github.com/jsandas/gologger"
 	"github.com/jsandas/tlstools/pkg/scanner"
@@ -12,7 +12,7 @@ import (
 )
 
 // ScanRoutes builds and returns routes for scanning
-func ScanRoutes() *chi.Mux {
+func ScanRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Get("/certificate", scanCertHandler)
 	r.Get("/configuration", scanConfigHandler)

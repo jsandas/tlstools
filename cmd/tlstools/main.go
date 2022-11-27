@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jsandas/tlstools/pkg/controllers"
 )
 
@@ -22,7 +22,7 @@ func main() {
 	)
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hi"))
+		w.Write([]byte("tlstools service"))
 	})
 
 	router.Route("/api/v1", func(r chi.Router) {
