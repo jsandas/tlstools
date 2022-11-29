@@ -1,14 +1,16 @@
 package ccs
 
 import (
-	"context"
-	"os"
-	"path"
+	"bufio"
+	"crypto/tls"
+	"fmt"
+	"net"
 	"strings"
 	"time"
 
-	"github.com/Ullaakut/nmap/v2"
 	logger "github.com/jsandas/gologger"
+	"github.com/jsandas/tlstools/pkg/ssl"
+	"github.com/jsandas/tlstools/pkg/utils/tcputils"
 )
 
 const (
@@ -21,62 +23,128 @@ type CCSInjection struct {
 	Vulnerable string `json:"vulnerable"`
 }
 
-// change cipher suite injections
-func (ccs *CCSInjection) Check(host string, port string) error {
-	// spath is the location of weakkeys binaries
-	// these are copied there during the docker build
-	p, _ := os.Executable()
-	spath := path.Dir(p) + "/../resources/nmap"
+// CCS test
+func (h *CCSInjection) Check(host string, port string, tlsVers int) error {
+	conn, err := net.DialTimeout("tcp", host+":"+port, 3*time.Second)
+	if err != nil {
+		logger.Errorf("event_id=tcp_dial_failed msg=\"%v\"", err)
+		h.Vulnerable = testFailed
+		return err
+	}
+	defer conn.Close()
 
-	// override spath if running go test
-	// or go run
-	cwd, _ := os.Getwd()
-	_, dir := path.Split(cwd)
-	if dir == "ccs" {
-		spath = "../../../resources/nmap"
+	/*
+		only test up to tlsv1.2 because not possible
+		with tlsv1.3
+	*/
+	if tlsVers > tls.VersionTLS12 {
+		tlsVers = tls.VersionTLS12
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
-	defer cancel()
-
-	scanner, err := nmap.NewScanner(
-		nmap.WithTargets(host),
-		nmap.WithPorts(port),
-		nmap.WithScripts(spath+"/ssl-ccs-injection.nse"),
-		nmap.WithContext(ctx),
-	)
+	err = ssl.StartTLS(conn, port)
 	if err != nil {
-		logger.Errorf("event_id=ccs_test_failed msg=%v", err)
-		ccs.Vulnerable = testFailed
+		h.Vulnerable = testFailed
 		return err
 	}
 
-	result, _, err := scanner.Run()
+	// Send clientHello
+	clientHello := makeClientHello(tlsVers)
+	err = tcputils.Write(conn, clientHello, 2)
 	if err != nil {
-		logger.Errorf("event_id=ccs_test_failed msg=%v", err)
-		ccs.Vulnerable = testFailed
+		logger.Debugf("event_id=ccs_clientHello_failed msg=\"%v\"", err)
+		h.Vulnerable = testFailed
 		return err
 	}
 
-	count := len(result.Hosts[0].Ports[0].Scripts)
+	connbuf := bufio.NewReader(conn)
 
-	if count == 0 {
-		logger.Debugf("event_id=ccs_test_completed result=%s", notVulnerable)
-		ccs.Vulnerable = notVulnerable
-		return nil
+	err = readServerHello(connbuf)
+	if err != nil {
+		switch err.Error() {
+		// some applications reset the tcp connection
+		// when probing for ccs
+		case "EOF":
+		default:
+			logger.Debugf("event_id=ccs_handshake_failed msg=\"%v\"", err)
+			h.Vulnerable = testFailed
+			return err
+		}
 	}
 
-	logger.Debugf("event_id=ccs_test_output output=%+v", result.Hosts[0].Ports[0].Scripts)
-	// logger.Debugf("event_id=ccs_test_output output=%s", result.Hosts[0].Ports[0].Scripts[0].Output)
-
-	output := result.Hosts[0].Ports[0].Scripts[0].Output
-
-	if strings.Contains(output, "VULNERABLE") {
-		logger.Debugf("event_id=ccs_test_completed result=%s", vulnerable)
-		ccs.Vulnerable = vulnerable
-	} else {
-		logger.Debugf("event_id=ccs_test_completed results=%s", notVulnerable)
+	payload := makePayload(tlsVers)
+	err = tcputils.Write(conn, payload, 2)
+	if err != nil {
+		logger.Debugf("event_id=ccs_payload_failed msg=\"%v\"", err)
+		h.Vulnerable = testFailed
+		return err
 	}
 
+	h.Vulnerable = ccsListen(connbuf)
 	return nil
+
+}
+
+func readServerHello(buff *bufio.Reader) error {
+	var data []byte
+
+	for {
+		b, err := buff.ReadByte()
+		if err != nil {
+			return err
+		}
+
+		data = append(data, b)
+
+		// is serverHello finished
+		if strings.HasSuffix(fmt.Sprintf("%X", data), "0E000000") {
+			break
+		}
+	}
+
+	return fmt.Errorf("no serverHello found")
+}
+
+// reads from buffer and checks the size of the response
+// to determine if heartbleed was exploited
+func ccsListen(buff *bufio.Reader) string {
+	// listen for reply
+	// ReadBytes has to be ran one to process started, but
+	// it will block if there isn't any data to read
+	var data []byte
+
+	go func() {
+		buff.ReadByte()
+	}()
+	time.Sleep(1 * time.Second)
+
+	i := 0
+	for {
+		buffLeft := buff.Buffered()
+
+		// fmt.Printf("iter: %d left: %d\n", i, buffLeft)
+		if buffLeft == 0 && i <= 3 {
+			i++
+			continue
+		}
+
+		if buffLeft == 0 && i > 3 {
+			break
+		}
+
+		b, err := buff.ReadByte()
+		data = append(data, b)
+		if err != nil {
+			// logger.Debugf("event_id=ccs_error msg=%v", err)
+			break
+		}
+
+		if len(data) >= 1600 {
+			logger.Debugf("event_id=ccs_check status=%s", vulnerable)
+			return vulnerable
+		}
+
+		i++
+	}
+
+	return notVulnerable
 }
