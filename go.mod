@@ -1,6 +1,6 @@
 module github.com/jsandas/tlstools
 
-go 1.18
+go 1.19
 
 require (
 	github.com/Ullaakut/nmap/v2 v2.2.2
