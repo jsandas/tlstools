@@ -47,17 +47,10 @@ func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertDa
 
 // CertificateData information about tls connection
 type CertificateData struct {
-	Certificates    []certutil.CertData `json:"certificates"`
-	ChainTrusted    bool                `json:"chainTrusted"`
-	HostName        string              `json:"hostName"`
-	HostNameMatches bool                `json:"hostNameMatches"`
-}
-
-// Vulnerabilities struct of vuln results
-type Vulnerabilities struct {
-	DebianWeakKey weakkey.DebianWeakKey `json:"debianWeakKey"`
-	Heartbleed    heartbleed.Heartbleed `json:"heartbleed"`
-	CCSInjection  ccs.CCSInjection      `json:"ccsinjection"`
+	Certificates    []certutil.CertData `yaml:"certificates"`
+	ChainTrusted    bool                `yaml:"chainTrusted"`
+	HostName        string              `yaml:"hostName"`
+	HostNameMatches bool                `yaml:"hostNameMatches"`
 }
 
 // ScanCertificate is performs tls certificate and conn checks
@@ -82,13 +75,20 @@ func (c *CertificateData) ScanCertificate(host string, port string) {
 
 // ConfigurationData information about tls connection
 type ConfigurationData struct {
-	ChainTrusted    bool                `json:"chainTrusted"`
-	HostName        string              `json:"hostName"`
-	HostNameMatches bool                `json:"hostNameMatches"`
-	OCSPStapling    bool                `json:"ocspStapling"`
-	ServerHeader    string              `json:"serverHeader"`
-	SupportedConfig map[string][]string `json:"supportedConfig"`
-	Vulnerabilities Vulnerabilities     `json:"vulnerabilities"`
+	// ChainTrusted    bool                `yaml:"chainTrusted"`
+	// HostName        string              `yaml:"hostName"`
+	// HostNameMatches bool                `yaml:"hostNameMatches"`
+	OCSPStapling    bool                `yaml:"ocspStapling"`
+	ServerHeader    string              `yaml:"serverHeader"`
+	SupportedConfig map[string][]string `yaml:"supportedConfig"`
+	Vulnerabilities Vulnerabilities     `yaml:"vulnerabilities"`
+}
+
+// Vulnerabilities struct of vuln results
+type Vulnerabilities struct {
+	DebianWeakKey weakkey.DebianWeakKey `yaml:"debianWeakKey"`
+	Heartbleed    heartbleed.Heartbleed `yaml:"heartbleed"`
+	CCSInjection  ccs.CCSInjection      `yaml:"ccsinjection"`
 }
 
 // ScanConfiguration is performs tls certificate and conn checks
@@ -112,9 +112,9 @@ func (cd *ConfigurationData) ScanConfiguration(host string, port string) {
 	} else {
 		cd.ServerHeader, _ = tcputils.GetTCPHeader(host, port)
 	}
-	cd.HostNameMatches = certutil.VerifyHostname(certs[0], host)
-	cd.ChainTrusted = certutil.IsTrusted(certs, host)
-	cd.HostName = host
+	// cd.HostNameMatches = certutil.VerifyHostname(certs[0], host)
+	// cd.ChainTrusted = certutil.IsTrusted(certs, host)
+	// cd.HostName = host
 	if ocspStapling != nil {
 		cd.OCSPStapling = true
 	}

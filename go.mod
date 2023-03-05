@@ -3,6 +3,7 @@ module github.com/jsandas/tlstools
 go 1.19
 
 require (
+	github.com/TwiN/go-color v1.4.0
 	github.com/Ullaakut/nmap/v2 v2.2.2
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/render v1.0.2
