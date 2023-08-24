@@ -1,5 +1,5 @@
 ## build go binary
-FROM golang:1.18 as build
+FROM golang:1.19 as build
 
 COPY . /go/src/tlstools
 
