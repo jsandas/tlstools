@@ -29,9 +29,14 @@ type CertData struct {
 
 // CertExtensions in certificate
 type CertExtensions struct {
-	AuthorityInformationAccess map[string]string `json:"authorityInformationAccess"`
-	CRLDistributionPoints      []string          `json:"crlDistributionPoints"`
-	SubjectAlternativeNames    []string          `json:"subjectAlternativeNames"`
+	AuthorityInformationAccess AuthorityInformationAccess `json:"authorityInformationAccess"`
+	CRLDistributionPoints      []string                   `json:"crlDistributionPoints"`
+	SubjectAlternativeNames    []string                   `json:"subjectAlternativeNames"`
+}
+
+type AuthorityInformationAccess struct {
+	OCSPURL   string `json:"ocspUrl"`
+	IssuerURL string `json:"issuerUrl"`
 }
 
 // Issuer information
@@ -80,10 +85,8 @@ func IsTrusted(certs []*x509.Certificate, host string) bool {
 // ParseCert used to parse/massage certain data
 func (c *CertData) Process(cert *x509.Certificate) {
 	// extensions
-	var a = make(map[string]string)
-	a["CAIssuers"] = utils.Ltos(cert.IssuingCertificateURL)
-	a["OCSP"] = utils.Ltos(cert.OCSPServer)
-	c.Extensions.AuthorityInformationAccess = a
+	c.Extensions.AuthorityInformationAccess.IssuerURL = utils.Ltos(cert.IssuingCertificateURL)
+	c.Extensions.AuthorityInformationAccess.OCSPURL = utils.Ltos(cert.OCSPServer)
 	c.Extensions.CRLDistributionPoints = cert.CRLDistributionPoints
 	c.Extensions.SubjectAlternativeNames = cert.DNSNames
 
