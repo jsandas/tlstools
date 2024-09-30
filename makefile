@@ -17,11 +17,11 @@ integration: build run
 	python3 test_setup/integration_tests.py
 
 run: setup_local_dev build
-	docker-compose -f test_setup/integrations.yaml pull --quiet --ignore-pull-failures
-	docker-compose -f test_setup/integrations.yaml up -d
+	docker compose -f test_setup/integrations.yaml pull --quiet --ignore-pull-failures
+	docker compose -f test_setup/integrations.yaml up -d
 
 stop:
-	docker-compose -f test_setup/integrations.yaml down
+	docker compose -f test_setup/integrations.yaml down
 
 unit: setup_local_dev
 	(cd test_setup && ./gen-certs.sh)

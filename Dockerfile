@@ -1,5 +1,5 @@
 ## build go binary
-FROM golang:1.19 as build
+FROM golang:1.19 AS build
 
 COPY . /go/src/tlstools
 
@@ -14,7 +14,7 @@ RUN CGO_ENABLED=0 go build ./cmd/tlstools
 RUN CGO_ENABLED=0 go build ./cmd/tlstools-cli
 
 ## build base image
-FROM debian as base
+FROM debian:bookworm AS base
 
 RUN apt-get update && apt upgrade -y \
     && apt-get install -y nmap \
@@ -32,14 +32,14 @@ USER appuser
 WORKDIR /opt/tlstools/bin
 
 ## build server image
-FROM base as server
+FROM base AS server
 
 COPY --from=build /go/src/tlstools/tlstools /opt/tlstools/bin
 
 ENTRYPOINT ["/opt/tlstools/bin/tlstools"]
 
 # build cli image
-FROM base as cli
+FROM base AS cli
 
 COPY --from=build /go/src/tlstools/tlstools-cli /opt/tlstools/bin
 
