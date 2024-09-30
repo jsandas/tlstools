@@ -54,7 +54,10 @@ func TestCheckNoSSLv2(t *testing.T) {
 
 func TestCheckSSLv2(t *testing.T) {
 	// Start the new server.
-	srv, _ := net.Listen("tcp4", ":443")
+	srv, err := net.Listen("tcp4", ":443")
+	if err != nil {
+		t.Errorf("failed to create listener: %s", err.Error())
+	}
 	defer srv.Close()
 
 	var srvConn net.Conn
