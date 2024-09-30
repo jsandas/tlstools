@@ -13,7 +13,7 @@ build_nocache:
 
 fresh: build_nocache run
 
-integration: build run
+integration: run
 	python3 test_setup/integration_tests.py
 
 run: setup_local_dev build
