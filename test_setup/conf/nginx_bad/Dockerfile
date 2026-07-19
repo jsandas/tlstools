@@ -7,7 +7,7 @@ RUN sed -i 's/archive/old-releases/g' /etc/apt/sources.list \
 
 WORKDIR /code
 
-RUN wget --no-check-certificate https://www.openssl.org/source/old/1.0.1/openssl-1.0.1f.tar.gz \
+RUN wget --no-check-certificate https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_1f/openssl-1.0.1f.tar.gz \
     \
     && tar -zxf openssl-1.0.1f.tar.gz \
     && cd /code/openssl-1.0.1f \
