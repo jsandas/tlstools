@@ -70,8 +70,8 @@ jobs:
       - name: Delete all tagged versions
         uses: snok/container-retention-policy@v3.1.0
         with:
-          account: ${{ github.repository_owner }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          account: user
+          token: ${{ secrets.TEMP_GH_TOKEN }}
           image-names: "nginx_bad"
           cut-off: "1h"
           tag-selection: tagged
