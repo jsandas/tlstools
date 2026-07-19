@@ -1,6 +1,6 @@
 module github.com/jsandas/tlstools
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/TwiN/go-color v1.4.1
@@ -13,7 +13,7 @@ require (
 )
 
 require (
-	github.com/ajg/form v1.5.1 // indirect
+	github.com/ajg/form v1.8.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
