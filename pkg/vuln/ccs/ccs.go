@@ -2,81 +2,77 @@ package ccs
 
 import (
 	"context"
-	"os"
-	"path"
-	"strings"
+	"net"
 	"time"
 
-	"github.com/Ullaakut/nmap/v2"
 	logger "github.com/jsandas/gologger"
 )
 
 const (
-	notVulnerable = "no"
-	vulnerable    = "yes"
-	testFailed    = "error"
+	StatusNotVulnerable ProbeStatus = "no"
+	StatusVulnerable    ProbeStatus = "yes"
+	StatusError         ProbeStatus = "error"
 )
 
 type CCSInjection struct {
 	Vulnerable string `json:"vulnerable"`
 }
 
-// change cipher suite injections
+// Check executes the CCS injection probe with protocol fallback.
 func (ccs *CCSInjection) Check(host string, port string) error {
-	// spath is the location of weakkeys binaries
-	// these are copied there during the docker build
-	p, _ := os.Executable()
-	spath := path.Dir(p) + "/../resources/nmap"
-
-	// override spath if running go test
-	// or go run
-	cwd, _ := os.Getwd()
-	_, dir := path.Split(cwd)
-	if dir == "ccs" {
-		spath = "../../../resources/nmap"
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	scanner, err := nmap.NewScanner(
-		nmap.WithTargets(host),
-		nmap.WithPorts(port),
-		nmap.WithScripts(spath+"/ssl-ccs-injection.nse"),
-		nmap.WithContext(ctx),
-	)
-	if err != nil {
-		logger.Errorf("event_id=ccs_test_failed msg=%v", err)
-		ccs.Vulnerable = testFailed
-		return err
-	}
-
-	result, _, err := scanner.Run()
-	if err != nil {
-		logger.Errorf("event_id=ccs_test_failed msg=%v", err)
-		ccs.Vulnerable = testFailed
-		return err
-	}
-
-	count := len(result.Hosts[0].Ports[0].Scripts)
-
-	if count == 0 {
-		logger.Debugf("event_id=ccs_test_completed result=%s", notVulnerable)
-		ccs.Vulnerable = notVulnerable
+	// 1. Try TLSv1.2 (0x0303)
+	res, err := ccs.probe(ctx, host, port, 0x0303)
+	if err == nil {
+		ccs.Vulnerable = string(res)
 		return nil
 	}
 
-	logger.Debugf("event_id=ccs_test_output output=%+v", result.Hosts[0].Ports[0].Scripts)
-	// logger.Debugf("event_id=ccs_test_output output=%s", result.Hosts[0].Ports[0].Scripts[0].Output)
-
-	output := result.Hosts[0].Ports[0].Scripts[0].Output
-
-	if strings.Contains(output, "VULNERABLE") {
-		logger.Debugf("event_id=ccs_test_completed result=%s", vulnerable)
-		ccs.Vulnerable = vulnerable
-	} else {
-		logger.Debugf("event_id=ccs_test_completed results=%s", notVulnerable)
+	// If protocol mismatch (not an error, just server doesn't support it) or error, try fallback to SSLv3 (0x0300)
+	// For now, we treat any error from probe as a reason to fallback, 
+	// but we might want to distinguish between "connection refused" and "protocol mismatch".
+	// In this implementation, we retry on any error to be thorough.
+	logger.Warnf("event_id=ccs_test_fallback msg=retrying with SSLv3 error=%v", err)
+	res, err = ccs.probe(ctx, host, port, 0x0300)
+	if err == nil {
+		ccs.Vulnerable = string(res)
+		return nil
 	}
 
-	return nil
+	// If both fail, it's an error
+	ccs.Vulnerable = string(StatusError)
+	return err
+}
+
+func (ccs *CCSInjection) probe(ctx context.Context, host, port string, version uint16) (ProbeStatus, error) {
+	dialer := net.Dialer{Timeout: 5 * time.Second}
+	conn, err := dialer.DialContext(ctx, "tcp", net.JoinHostPort(host, port))
+	if err != nil {
+		return StatusError, err
+	}
+	defer conn.Close()
+
+	// Set deadline for the probe
+	deadline, _ := ctx.Deadline()
+	conn.SetDeadline(deadline)
+
+	vulnerable, status, err := probeVersion(conn, version)
+	if err != nil {
+		return StatusError, err
+	}
+
+	if status == ProbeStatusNotVulnerable {
+		return StatusNotVulnerable, nil
+	}
+	if status == ProbeStatusError {
+		return StatusError, nil
+	}
+
+	if vulnerable {
+		return StatusVulnerable, nil
+	}
+
+	return StatusNotVulnerable, nil
 }
