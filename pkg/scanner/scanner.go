@@ -8,14 +8,14 @@ import (
 	"sync"
 
 	logger "github.com/jsandas/gologger"
+	"github.com/jsandas/tls-vuln-checker/vulnerabilities/ccs"
+	"github.com/jsandas/tls-vuln-checker/vulnerabilities/debianweakkey"
+	"github.com/jsandas/tls-vuln-checker/vulnerabilities/heartbleed"
 	"github.com/jsandas/tlstools/pkg/certutil"
 	"github.com/jsandas/tlstools/pkg/ssl"
 	"github.com/jsandas/tlstools/pkg/ssl/status"
 	"github.com/jsandas/tlstools/pkg/utils"
 	"github.com/jsandas/tlstools/pkg/utils/tcputils"
-	"github.com/jsandas/tlstools/pkg/vuln/ccs"
-	"github.com/jsandas/tlstools/pkg/vuln/heartbleed"
-	"github.com/jsandas/tlstools/pkg/vuln/weakkey"
 )
 
 func getCertData(cList []*x509.Certificate, ocspStaple []byte) []certutil.CertData {
@@ -86,9 +86,9 @@ type ConfigurationData struct {
 
 // Vulnerabilities struct of vuln results
 type Vulnerabilities struct {
-	DebianWeakKey weakkey.DebianWeakKey `json:"debianWeakKey"`
-	Heartbleed    heartbleed.Heartbleed `json:"heartbleed"`
-	CCSInjection  ccs.CCSInjection      `json:"ccsinjection"`
+	DebianWeakKey debianweakkey.DebianWeakKey `json:"debianWeakKey"`
+	Heartbleed    heartbleed.Heartbleed       `json:"heartbleed"`
+	CCSInjection  ccs.CCSInjection            `json:"ccsinjection"`
 }
 
 // ScanConfiguration is performs tls certificate and conn checks
