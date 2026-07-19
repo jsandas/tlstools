@@ -148,7 +148,7 @@ func TestScanConfiguration(t *testing.T) {
 
 	cd.ScanConfiguration(host, port)
 
-	if len(cd.SupportedConfig) != 4 {
+	if len(cd.SupportedConfig) != 2 {
 		t.Errorf("wrong config length, got: %d, want: %d.", len(cd.SupportedConfig), 2)
 	}
 }
