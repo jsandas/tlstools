@@ -4,7 +4,6 @@ go 1.25.0
 
 require (
 	github.com/TwiN/go-color v1.4.1
-	github.com/Ullaakut/nmap/v2 v2.2.2
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/render v1.0.3
 	github.com/jsandas/etls v0.1.2
@@ -14,7 +13,5 @@ require (
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
-	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 )
