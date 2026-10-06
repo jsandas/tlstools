@@ -9,11 +9,11 @@ require (
 	github.com/jsandas/etls v0.1.2
 	github.com/jsandas/gologger v0.0.0-20220724041954-4d8e63f0a712
 	github.com/jsandas/tls-vuln-checker v1.0.0
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.57.0
 )
 
 require (
 	github.com/ajg/form v1.8.0 // indirect
 	github.com/jsandas/starttls-go v1.1.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
 )
